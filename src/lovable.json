@@ -1,0 +1,20 @@
+{
+  "name": "my-broker",
+  "description": "Sistema de Gestão de Vendas Imobiliárias com ranking gamificado e dashboard interativo",
+  "version": "1.0.0",
+  "framework": "vite",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "installCommand": "npm install",
+  "devCommand": "npm run dev",
+  "port": 8080,
+  "env": {
+    "VITE_SUPABASE_URL": "https://vzikbsmenardukegqgvj.supabase.co",
+    "VITE_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6aWtic21lbmFyZHVrZWdxZ3ZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0MTcwOTgsImV4cCI6MjA2OTk5MzA5OH0.rT6BKMsXEXyB149UGYuOjZy5wehmV0G-ZDNoo5TAMtE"
+  },
+  "features": {
+    "componentTagger": true,
+    "analytics": true,
+    "performance": true
+  }
+}
