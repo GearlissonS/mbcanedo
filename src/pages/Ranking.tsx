@@ -88,22 +88,79 @@ const toView = (arr: RankItem[]): Array<RankItem & { avatar: string }> =>
       </div>
 
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 p-6 rounded-xl border bg-card shadow-[var(--shadow-elevated)]">
-          <h1 className="text-2xl font-bold mb-4">Pódio</h1>
-          <div className="grid grid-cols-3 gap-4 items-end">
-            {top3.map((r, i) => (
-              <div key={r.vendedor} className={`text-center animate-scale-in ${settings.rankingAnimation ? 'transition-transform hover:scale-105' : ''}`}>
-                <div aria-label={`Medalha ${i===0?'ouro':i===1?'prata':'bronze'}`} className="text-2xl">{i===0?'🥇':i===1?'🥈':'🥉'}</div>
-                <div className="mx-auto mt-2 w-24 h-24 rounded-full p-1 shadow" style={{ background: 'var(--gradient-primary)' }}>
-                  <Avatar className="h-full w-full ring-2 ring-[hsl(var(--accent))]">
-                    <AvatarImage src={r.avatar} alt={`Foto de ${r.vendedor}`} />
-                    <AvatarFallback>{(r.vendedor || '—').split(' ').map((n) => n[0]).join('').slice(0,2)}</AvatarFallback>
-                  </Avatar>
-                </div>
-                <div className="mt-2 font-medium">{r.vendedor || '—'}</div>
-                <div className="text-sm text-muted-foreground">VGV: {r.vgv.toLocaleString('pt-BR',{ style:'currency', currency:'BRL' })}</div>
-              </div>
-            ))}
+        <div className="lg:col-span-2 p-8 rounded-xl border bg-card shadow-[var(--shadow-elevated)] overflow-hidden relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary-glow/10 pointer-events-none" />
+          <div className="relative z-10">
+            <h1 className="text-3xl font-bold mb-8 text-center bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
+              🏆 Pódio dos Campeões
+            </h1>
+            <div className="flex items-end justify-center gap-8 min-h-[320px]">
+              {/* Reorder for visual impact: 2nd, 1st, 3rd */}
+              {[1, 0, 2].map((position) => {
+                const r = top3[position];
+                if (!r) return null;
+                
+                const heights = { 0: 'h-32', 1: 'h-24', 2: 'h-20' };
+                const medalGradients = {
+                  0: 'from-yellow-300 via-yellow-500 to-yellow-600',
+                  1: 'from-gray-300 via-gray-400 to-gray-500', 
+                  2: 'from-amber-600 via-amber-700 to-amber-800'
+                };
+                const glowColors = {
+                  0: 'shadow-yellow-500/30',
+                  1: 'shadow-gray-400/30',
+                  2: 'shadow-amber-600/30'
+                };
+                
+                return (
+                  <div 
+                    key={r.vendedor} 
+                    className={`text-center animate-scale-in ${settings.rankingAnimation ? 'transition-all duration-300 hover:scale-105' : ''}`}
+                    style={{ animationDelay: `${position * 0.2}s` }}
+                  >
+                    {/* Medal */}
+                    <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br ${medalGradients[position]} shadow-lg ${glowColors[position]} mb-4 animate-pulse`}>
+                      <span className="text-2xl font-bold text-white drop-shadow-lg">
+                        {position === 0 ? '1°' : position === 1 ? '2°' : '3°'}
+                      </span>
+                    </div>
+                    
+                    {/* Podium Base */}
+                    <div className={`mx-auto ${heights[position]} w-20 bg-gradient-to-t from-primary/20 to-primary/10 rounded-t-lg border-2 border-primary/30 relative overflow-hidden`}>
+                      <div className="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent" />
+                      <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 text-xs font-bold text-primary">
+                        {position + 1}º
+                      </div>
+                    </div>
+                    
+                    {/* Avatar */}
+                    <div className="mx-auto -mt-8 relative z-10">
+                      <div className="w-16 h-16 rounded-full p-1 bg-gradient-to-br from-primary via-primary-glow to-primary shadow-lg">
+                        <Avatar className="h-full w-full ring-2 ring-white">
+                          <AvatarImage src={r.avatar} alt={`Foto de ${r.vendedor}`} />
+                          <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary-glow/20 text-primary font-bold">
+                            {(r.vendedor || '—').split(' ').map((n) => n[0]).join('').slice(0,2)}
+                          </AvatarFallback>
+                        </Avatar>
+                      </div>
+                    </div>
+                    
+                    {/* Info */}
+                    <div className="mt-3 space-y-1">
+                      <div className="font-bold text-sm">{r.vendedor || '—'}</div>
+                      <div className="text-xs text-muted-foreground font-medium">
+                        {r.vgv.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                      </div>
+                      {position === 0 && (
+                        <div className="inline-flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-yellow-400/20 to-yellow-600/20 rounded-full text-xs font-bold text-yellow-700 border border-yellow-400/30">
+                          👑 Líder
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
         <div className="p-6 rounded-xl border bg-card shadow-sm">
