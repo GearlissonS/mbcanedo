@@ -31,7 +31,7 @@ export function AppSidebar() {
   return <Sidebar collapsible="icon">
       <SidebarContent className="bg-blue-400 ">
         <SidebarGroup>
-          <SidebarGroupLabel>Navegação</SidebarGroupLabel>
+          <SidebarGroupLabel className="rounded-none">Navegação</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map(item => <SidebarMenuItem key={item.key}>
