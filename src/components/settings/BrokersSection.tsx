@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 export default function BrokersSection() {
   const { settings, updateSettings } = useSettings();
   const [newName, setNewName] = useState("");
+  const [newTeam, setNewTeam] = useState("");
   const [newFile, setNewFile] = useState<File | null>(null);
-
   const addBroker = () => {
     if (!newName.trim()) return;
     const finalize = (avatarDataUrl?: string) => {
@@ -33,6 +33,10 @@ export default function BrokersSection() {
     updateSettings({ brokers: next });
   };
 
+  const updateTeam = (id: string, team: string) => {
+    const next = (settings.brokers || []).map((b) => (b.id === id ? { ...b, team } : b));
+    updateSettings({ brokers: next });
+  };
   const updateAvatar = (id: string, file?: File | null) => {
     if (!file) return;
     const reader = new FileReader();
@@ -53,10 +57,14 @@ export default function BrokersSection() {
       <h2 className="font-semibold mb-3">Corretores</h2>
 
       {/* Add */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
         <div className="md:col-span-1">
           <Label>Nome</Label>
           <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Ex.: Ana Souza" />
+        </div>
+        <div className="md:col-span-1">
+          <Label>Equipe</Label>
+          <Input value={newTeam} onChange={(e) => setNewTeam(e.target.value)} placeholder="Ex.: Time A" />
         </div>
         <div className="md:col-span-1">
           <Label>Avatar</Label>
@@ -84,6 +92,10 @@ export default function BrokersSection() {
               <div>
                 <Label className="text-xs">Nome</Label>
                 <Input value={b.name} onChange={(e) => updateName(b.id, e.target.value)} />
+                <div className="mt-2">
+                  <Label className="text-xs">Equipe</Label>
+                  <Input value={b.team || ""} onChange={(e) => updateTeam(b.id, e.target.value)} placeholder="Ex.: Time A" />
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-2">

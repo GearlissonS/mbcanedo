@@ -6,6 +6,7 @@ export type MenuKey = "home" | "sales" | "ranking" | "dashboard" | "settings";
 export interface Broker {
   id: string;
   name: string;
+  team?: string | null;
   avatarDataUrl?: string | null;
 }
 
@@ -34,7 +35,7 @@ interface SettingsContextType {
 }
 
 const defaultSettings: Settings = {
-  title: "My Broker",
+  title: "My Broker Senador Canedo",
   primaryHex: "#1d4ed8",
   accentHex: "#06b6d4",
   chartColors: ["#1d4ed8", "#0ea5e9", "#2563eb", "#38bdf8", "#60a5fa"],
@@ -84,8 +85,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
 const applyTheme = () => {
   const root = document.documentElement;
-  // Blue + Black theme by default (dark)
-  root.classList.add("dark");
+  // Light theme (white + blue) by default
+  root.classList.remove("dark");
   root.style.setProperty("--primary", hexToHsl(settings.primaryHex));
   root.style.setProperty("--accent", hexToHsl(settings.accentHex));
 };

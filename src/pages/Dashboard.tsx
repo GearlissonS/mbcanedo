@@ -53,9 +53,13 @@ export default function Dashboard() {
   const [start, setStart] = useState<string>("");
   const [end, setEnd] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
-
+  const [seller, setSeller] = useState<string>("all");
   // Usar dados fictícios se não houver vendas
   const activeSales = sales.length > 0 ? sales : mockSales;
+
+  const vendedores = useMemo(() => {
+    return Array.from(new Set(activeSales.map((s: any) => s.vendedor).filter(Boolean)));
+  }, [activeSales]);
 
   const filtered = useMemo(() => {
     const now = new Date();
@@ -65,9 +69,11 @@ export default function Dashboard() {
     if (mode === "custom" && start && end) { s = new Date(start); e = new Date(end); }
     return activeSales.filter((x) => {
       const d = new Date(x.dataCompetencia);
-      return s && e ? d >= s && d <= e : true;
+      const inRange = s && e ? d >= s && d <= e : true;
+      const vendedorOk = seller === "all" ? true : x.vendedor === seller;
+      return inRange && vendedorOk;
     });
-  }, [activeSales, mode, start, end]);
+  }, [activeSales, mode, start, end, seller]);
 
   const prevFiltered = useMemo(() => {
     const now = new Date();
@@ -144,7 +150,7 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
     <div className="space-y-6">
       <Helmet>
         <title>{settings.title} — Dashboard</title>
-        <meta name="description" content="Gráficos: VGV, VGC, Ranking, Revenda x Lançamento, Origem e % VGC/VGV." />
+        <meta name="description" content="Gráficos (VGV, VGC, Ranking, Tipos, Origem) com filtros por período e corretor." />
       </Helmet>
 
       <div className="flex flex-wrap items-end gap-3">
@@ -156,6 +162,16 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
               <SelectItem value="mensal">Mensal</SelectItem>
               <SelectItem value="anual">Anual</SelectItem>
               <SelectItem value="custom">Personalizado</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label>Corretor</Label>
+          <Select value={seller} onValueChange={(v) => setSeller(v)}>
+            <SelectTrigger className="w-48"><SelectValue placeholder="Todos" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              {vendedores.map((v) => (<SelectItem key={v} value={v}>{v}</SelectItem>))}
             </SelectContent>
           </Select>
         </div>

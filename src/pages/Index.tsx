@@ -9,7 +9,7 @@ const Index = () => {
     <div className="min-h-[calc(100vh-56px)] grid place-items-center bg-gradient-to-b from-background to-muted/40 animate-fade-in">
       <Helmet>
         <title>{settings.title} — Home</title>
-        <meta name="description" content="Home do My Broker: visão geral e atalhos para Vendas e Dashboard." />
+        <meta name="description" content="Home do My Broker Senador Canedo: visão geral e atalhos para Vendas e Dashboard." />
       </Helmet>
       <section className="text-center max-w-3xl px-4">
         <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
