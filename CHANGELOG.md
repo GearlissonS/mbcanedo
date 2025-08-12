@@ -60,15 +60,15 @@
 ### 🎨 **Cores da Sidebar**
 
 #### **Modo Claro**
-- Background: `hsl(217 91% 60%)` - Azul vibrante
+- Background: `hsl(220 100% 20%)` - Azul marinho
 - Foreground: `hsl(0 0% 100%)` - Branco
-- Hover: `hsl(217 91% 50%)` - Azul mais escuro
-- Active: `hsl(217 91% 40%)` - Azul ainda mais escuro
+- Hover: `hsl(220 100% 15%)` - Azul marinho mais escuro
+- Active: `hsl(220 100% 10%)` - Azul marinho muito escuro
 
 #### **Modo Escuro**
-- Background: `hsl(217 91% 40%)` - Azul mais escuro
+- Background: `hsl(220 100% 15%)` - Azul marinho escuro
 - Foreground: `hsl(0 0% 100%)` - Branco
-- Hover: `hsl(217 91% 30%)` - Azul muito escuro
+- Hover: `hsl(220 100% 10%)` - Azul marinho muito escuro
 
 ### 📊 **Melhorias de Performance**
 

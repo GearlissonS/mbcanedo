@@ -10,10 +10,10 @@
 ## 🎨 **Principais Mudanças Implementadas**
 
 ### ✅ **Cores da Sidebar**
-- **Fundo:** Azul (#3B82F6)
+- **Fundo:** Azul Marinho (#003366)
 - **Texto:** Branco (#FFFFFF)
-- **Hover:** Azul mais escuro
-- **Ativo:** Azul ainda mais escuro
+- **Hover:** Azul marinho mais escuro
+- **Ativo:** Azul marinho muito escuro
 
 ### ✅ **Melhorias de UX**
 - Loading states otimizados
@@ -157,16 +157,16 @@ npm run preview
 
 ### **Sidebar**
 ```css
---sidebar-background: 217 91% 60%; /* Azul */
---sidebar-foreground: 0 0% 100%;   /* Branco */
---sidebar-primary: 217 91% 60%;    /* Azul */
---sidebar-accent: 217 91% 50%;     /* Azul escuro */
+--sidebar-background: 220 100% 20%; /* Azul Marinho */
+--sidebar-foreground: 0 0% 100%;    /* Branco */
+--sidebar-primary: 220 100% 20%;    /* Azul Marinho */
+--sidebar-accent: 220 100% 15%;     /* Azul Marinho escuro */
 ```
 
 ### **Modo Escuro**
 ```css
---sidebar-background: 217 91% 40%; /* Azul escuro */
---sidebar-foreground: 0 0% 100%;   /* Branco */
+--sidebar-background: 220 100% 15%; /* Azul Marinho escuro */
+--sidebar-foreground: 0 0% 100%;    /* Branco */
 ```
 
 ## 🚨 **Solução de Problemas**
