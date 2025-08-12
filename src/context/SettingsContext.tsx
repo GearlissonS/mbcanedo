@@ -24,6 +24,10 @@ export interface Settings {
   menuOrder: MenuKey[];
   logoDataUrl?: string | null;
   brokers?: Broker[];
+  // Theme & background customization
+  backgroundStyle: "geometric" | "none";
+  backgroundIntensity: number; // 0-100
+  showThemedIcons: boolean;
 }
 
 interface SettingsContextType {
@@ -36,9 +40,9 @@ interface SettingsContextType {
 
 const defaultSettings: Settings = {
   title: "My Broker Senador Canedo",
-  primaryHex: "#1d4ed8",
-  accentHex: "#06b6d4",
-  chartColors: ["#1d4ed8", "#0ea5e9", "#2563eb", "#38bdf8", "#60a5fa"],
+  primaryHex: "#0f172a", // navy
+  accentHex: "#0ea5e9",
+  chartColors: ["#0f172a", "#0ea5e9", "#1e293b", "#38bdf8", "#60a5fa"],
   commissionRate: 5,
   rankingSound: "ding",
   rankingAnimation: true,
@@ -48,6 +52,9 @@ const defaultSettings: Settings = {
   menuOrder: ["home", "sales", "ranking", "dashboard", "settings"],
   logoDataUrl: null,
   brokers: [],
+  backgroundStyle: "geometric",
+  backgroundIntensity: 40,
+  showThemedIcons: true,
 };
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);

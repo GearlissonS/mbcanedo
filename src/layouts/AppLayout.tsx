@@ -4,12 +4,14 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { useSettings } from "@/context/SettingsContext";
 import { Button } from "@/components/ui/button";
 import { Helmet } from "react-helmet-async";
+import GeometricBackground from "@/components/design/GeometricBackground";
 
 export default function AppLayout() {
   const { settings } = useSettings();
 
   return (
     <SidebarProvider>
+      <GeometricBackground />
       <Helmet>
         <title>{settings.title} — Gestão de Vendas Imobiliárias</title>
         <meta name="description" content="Sistema moderno para gestão de vendas imobiliárias com ranking, vendas e dashboard." />

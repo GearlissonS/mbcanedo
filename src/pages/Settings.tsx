@@ -95,6 +95,43 @@ export default function Settings() {
               <Label>Logo</Label>
               <Input type="file" accept="image/*" onChange={onLogo} />
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <Label>Fundo</Label>
+                <select
+                  className="w-full h-10 rounded-md border bg-background px-3"
+                  value={settings.backgroundStyle || "geometric"}
+                  onChange={(e) => updateSettings({ backgroundStyle: e.target.value as any })}
+                >
+                  <option value="geometric">Geométrico</option>
+                  <option value="none">Nenhum</option>
+                </select>
+              </div>
+              <div>
+                <Label>Intensidade do Fundo</Label>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={settings.backgroundIntensity ?? 40}
+                  onChange={(e) => updateSettings({ backgroundIntensity: Number(e.target.value) })}
+                  className="w-full"
+                />
+                <div className="text-xs text-muted-foreground mt-1">{settings.backgroundIntensity ?? 40}%</div>
+              </div>
+              <div className="flex items-end">
+                <label className="inline-flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={(settings.showThemedIcons ?? true) === true}
+                    onChange={(e) => updateSettings({ showThemedIcons: e.target.checked })}
+                  />
+                  <span>Ícones temáticos</span>
+                </label>
+              </div>
+            </div>
+
             <Button onClick={saveTheme}>Salvar Tema</Button>
           </div>
         </div>
