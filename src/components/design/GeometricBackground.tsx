@@ -35,9 +35,7 @@ const GeometricBackground: React.FC = () => {
         {/* Abstract angled shapes */}
         <g className="text-accent" opacity={shapeOpacity}>
           <polygon points="0,120 220,0 0,0" fill="currentColor" />
-          <polygon points="100%,0 100%,160 70%,0" fill="currentColor" />
-          <polygon points="0,100% 0,80% 25%,100%" fill="currentColor" />
-          <polygon points="100%,100% 75%,100% 100%,80%" fill="currentColor" />
+          <polygon points="0,260 320,0 220,0 0,120" fill="currentColor" />
         </g>
       </svg>
 
