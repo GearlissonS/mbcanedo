@@ -210,6 +210,25 @@ export default function Settings() {
                     <option value="ding">Ding</option>
                     <option value="tada">Tada</option>
                   </select>
+                  <div className="mt-2">
+                    <Label>Upload de som (.mp3, máx. 2MB)</Label>
+                    <Input type="file" accept="audio/mp3" onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      if (file.size > 2 * 1024 * 1024) {
+                        alert("O arquivo deve ter no máximo 2MB.");
+                        return;
+                      }
+                      const reader = new FileReader();
+                      reader.onload = () => updateSettings({ rankingSoundFile: String(reader.result) });
+                      reader.readAsDataURL(file);
+                    }} />
+                    <div className="text-xs text-muted-foreground mt-1">O som será usado ao ultrapassar no ranking.</div>
+                  </div>
+                  <div className="mt-2 flex items-center gap-2">
+                    <input type="checkbox" checked={settings.rankingSoundEnabled ?? true} onChange={e => updateSettings({ rankingSoundEnabled: e.target.checked })} />
+                    <span>Habilitar som do ranking</span>
+                  </div>
                 </div>
                 <div>
                   <Label>Animação</Label>

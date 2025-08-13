@@ -1,5 +1,7 @@
 import { useMemo, useRef, useEffect, useState } from "react";
+import { useRealtimeSales } from "@/hooks/useRealtimeSales";
 import { Tooltip } from "@/components/ui/tooltip";
+import { Maximize2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useData } from "@/context/DataContext";
 import { useSettings } from "@/context/SettingsContext";
@@ -11,7 +13,11 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 interface RankItem { vendedor: string; vgv: number; }
 
 export default function Ranking() {
-  const { sales } = useData();
+  const { sales, setSales } = useData();
+  // Atualização automática via Supabase Realtime
+  useRealtimeSales((newSale) => {
+    setSales([...sales, newSale]);
+  });
   const { settings, playRankingSound } = useSettings();
   const [period, setPeriod] = useState<"mensal" | "anual">("mensal");
   const [search, setSearch] = useState("");
@@ -48,14 +54,22 @@ export default function Ranking() {
       ranking.forEach((item, idx) => {
         const prevIdx = prevOrder.current.indexOf(item.vendedor);
         if (prevIdx !== -1 && prevIdx > idx) {
-          playRankingSound();
+          // Som personalizado
+          if (settings.rankingSoundEnabled) {
+            if (settings.rankingSoundFile) {
+              const audio = new Audio(settings.rankingSoundFile);
+              audio.play();
+            } else {
+              playRankingSound();
+            }
+          }
           setHighlighted(item.vendedor);
           setTimeout(() => setHighlighted(null), 2000);
         }
       });
     }
     prevOrder.current = ranking.map((r) => r.vendedor);
-  }, [ranking, playRankingSound]);
+  }, [ranking, playRankingSound, settings.rankingSoundFile, settings.rankingSoundEnabled]);
 
   const fallback: Array<RankItem & { avatar: string }> = [
     { vendedor: "Ana Souza", vgv: 1250000, avatar: "https://i.pravatar.cc/128?u=ana.souza" },
@@ -94,6 +108,15 @@ const toView = (arr: RankItem[]): Array<RankItem & { avatar: string }> =>
       </Helmet>
 
       <div className="flex flex-col md:flex-row items-end gap-3">
+        <button
+          type="button"
+          className="ml-auto flex items-center gap-2 px-3 py-2 rounded bg-primary text-white hover:bg-primary-glow transition"
+          aria-label="Abrir ranking em tela cheia"
+          onClick={() => window.open('/ranking/full', '_blank')}
+        >
+          <Maximize2 className="w-5 h-5" />
+          Tela Cheia
+        </button>
         <Label htmlFor="periodo">Período</Label>
         <Select value={period} onValueChange={(v: any) => setPeriod(v)}>
           <SelectTrigger className="w-40" id="periodo" aria-label="Selecionar período"><SelectValue /></SelectTrigger>

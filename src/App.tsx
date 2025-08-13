@@ -11,6 +11,7 @@ import Sales from "./pages/Sales";
 import Ranking from "./pages/Ranking";
 import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/Settings";
+import RankingFull from "./pages/RankingFull";
 import { SettingsProvider } from "@/context/SettingsContext";
 import { DataProvider } from "@/context/DataContext";
 
@@ -30,6 +31,7 @@ const App = () => (
                   <Route path="/" element={<Index />} />
                   <Route path="/sales" element={<Sales />} />
                   <Route path="/ranking" element={<Ranking />} />
+                  <Route path="/ranking/full" element={<RankingFull />} />
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/settings" element={<Settings />} />
                 </Route>

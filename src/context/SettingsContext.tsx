@@ -18,6 +18,8 @@ export interface Settings {
   commissionRate: number; // %
   rankingSound: "none" | "ding" | "tada";
   rankingAnimation: boolean;
+  rankingSoundFile?: string | null;
+  rankingSoundEnabled?: boolean;
   origins: string[];
   styles: string[];
   products: string[];
@@ -28,6 +30,7 @@ export interface Settings {
   backgroundStyle: "geometric" | "none";
   backgroundIntensity: number; // 0-100
   showThemedIcons: boolean;
+  // ... outros campos
 }
 
 interface SettingsContextType {
@@ -61,6 +64,8 @@ const defaultSettings: Settings = {
   backgroundStyle: "geometric",
   backgroundIntensity: 40,
   showThemedIcons: true,
+  rankingSoundFile: null,
+  rankingSoundEnabled: true,
 };
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
