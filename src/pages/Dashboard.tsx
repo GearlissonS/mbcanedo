@@ -24,7 +24,7 @@ function monthKey(dateStr: string) {
 }
 
 // Dados fictícios para demonstração - REMOVER EM PRODUÇÃO
-const mockSales = sales.length > 0 ? [] : [
+const mockSales = [
   { id: "1", dataCompetencia: "2024-12-01", dataVencimento: "2024-12-15", cliente: "João Silva", origem: "Indicação", estilo: "Clássico", produto: "Apartamento 2Q", vgv: 450000, vgc: 22500, tipo: "Revenda", vendedor: "Ana Souza", captador: "Bruno Lima", gerente: "Carla Mendes", status: "Aprovada", pago: true, createdAt: "2024-12-01T08:00:00Z" },
   { id: "2", dataCompetencia: "2024-12-03", dataVencimento: "2024-12-18", cliente: "Maria Santos", origem: "Digital", estilo: "Moderno", produto: "Casa 3Q", vgv: 680000, vgc: 34000, tipo: "Lançamento", vendedor: "Bruno Lima", captador: "Ana Souza", gerente: "Diego Rocha", status: "Em análise", pago: false, createdAt: "2024-12-03T10:30:00Z" },
   { id: "3", dataCompetencia: "2024-12-05", dataVencimento: "2024-12-20", cliente: "Pedro Costa", origem: "Portaria", estilo: "Luxo", produto: "Cobertura", vgv: 1200000, vgc: 60000, tipo: "Lançamento", vendedor: "Carla Mendes", captador: "Felipe Nunes", gerente: "Eduarda Pires", status: "Aprovada", pago: true, createdAt: "2024-12-05T14:15:00Z" },
@@ -52,7 +52,7 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(false);
   const [seller, setSeller] = useState<string>("all");
   // Usar dados fictícios se não houver vendas
-  const activeSales = sales.length > 0 ? sales : mockSales;
+  const activeSales = sales && sales.length > 0 ? sales : mockSales;
 
   const vendedores = useMemo(() => {
     return Array.from(new Set(activeSales.map((s: any) => s.vendedor).filter(Boolean)));
