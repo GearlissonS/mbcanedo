@@ -8,7 +8,11 @@ export interface Broker {
   name: string;
   team?: string | null;
   avatarDataUrl?: string | null;
-}
+  nickname: string;
+  creci: string;
+  vgv?: number;
+  tempoMedioVenda?: number;
+};
 
 export interface Settings {
   title: string;
@@ -55,11 +59,11 @@ const defaultSettings: Settings = {
   menuOrder: ["home", "sales", "ranking", "dashboard", "settings"],
   logoDataUrl: null,
   brokers: [
-    { id: "1", name: "Ana Souza", team: "Time A", avatarDataUrl: null },
-    { id: "2", name: "Bruno Lima", team: "Time A", avatarDataUrl: null },
-    { id: "3", name: "Carla Mendes", team: "Time B", avatarDataUrl: null },
-    { id: "4", name: "Diego Rocha", team: "Time B", avatarDataUrl: null },
-    { id: "5", name: "Eduarda Pires", team: "Time C", avatarDataUrl: null },
+  { id: "1", name: "Ana Souza", nickname: "Ana", creci: "12345F", team: "Time A", avatarDataUrl: null },
+  { id: "2", name: "Bruno Lima", nickname: "Bruno", creci: "23456F", team: "Time A", avatarDataUrl: null },
+  { id: "3", name: "Carla Mendes", nickname: "Carla", creci: "34567F", team: "Time B", avatarDataUrl: null },
+  { id: "4", name: "Diego Rocha", nickname: "Diego", creci: "45678F", team: "Time B", avatarDataUrl: null },
+  { id: "5", name: "Eduarda Pires", nickname: "Eduarda", creci: "56789F", team: "Time C", avatarDataUrl: null },
   ],
   backgroundStyle: "geometric",
   backgroundIntensity: 40,
