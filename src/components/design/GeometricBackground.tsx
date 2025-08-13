@@ -58,7 +58,7 @@ const GeometricBackground: React.FC = () => {
       {/* Thematic subtle icons com animação de flutuação */}
       {settings.showThemedIcons !== false && (
         <div className="absolute inset-0 grid grid-cols-3 md:grid-cols-5 place-items-center gap-8">
-          [
+          {[
             { C: Building2, key: "b1" },
             { C: Home, key: "h1" },
             { C: Handshake, key: "hs1" },
@@ -69,15 +69,6 @@ const GeometricBackground: React.FC = () => {
             { C: TrendingUp, key: "t2" },
             { C: Handshake, key: "hs2" },
             { C: KeyRound, key: "k2" }
-          ].map(({ C, key }, i) => (
-            <div
-              key={key}
-              className={`hidden sm:block ${i % 2 === 0 ? "text-primary" : "text-accent"}`}
-              style={{ opacity: iconOpacity }}
-            >
-              <C className="w-16 h-16 md:w-20 md:h-20" />
-            </div>
-          ))}
           ].map(({ C, key }, i) => (
             <div
               key={key}

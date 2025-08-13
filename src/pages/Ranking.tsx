@@ -11,7 +11,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 interface RankItem { vendedor: string; vgv: number; }
 
 export default function Ranking() {
-  const { sales, loading } = useData();
+  const { sales } = useData();
   const { settings, playRankingSound } = useSettings();
   const [period, setPeriod] = useState<"mensal" | "anual">("mensal");
   const [search, setSearch] = useState("");
@@ -106,12 +106,8 @@ const toView = (arr: RankItem[]): Array<RankItem & { avatar: string }> =>
         <Input id="busca" type="text" placeholder="Digite o nome..." value={search} onChange={e => setSearch(e.target.value)} className="w-48" aria-label="Buscar corretor" />
       </div>
 
-      {loading ? (
-        <div className="flex justify-center items-center h-40" aria-live="polite">
-          <span className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary" aria-label="Carregando" />
-        </div>
-      ) : (
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  {/* Removido loader pois não há loading no contexto */}
+  <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 p-8 rounded-xl border bg-card shadow-[var(--shadow-elevated)] overflow-hidden relative">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary-glow/10 pointer-events-none" />
           <div className="relative z-10">
@@ -157,7 +153,10 @@ const toView = (arr: RankItem[]): Array<RankItem & { avatar: string }> =>
                     {/* Avatar */}
                     <div className="mx-auto -mt-8 relative z-10">
                       <div className="w-16 h-16 rounded-full p-1 bg-gradient-to-br from-primary via-primary-glow to-primary shadow-lg">
-                        <Tooltip content={`VGV: ${r.vgv.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`}> 
+                        <Tooltip>
+                          <span className="text-xs px-2 py-1 bg-muted rounded absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                            VGV: {r.vgv.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                          </span>
                           <Avatar className="h-full w-full ring-2 ring-white">
                             <AvatarImage src={r.avatar} alt={`Foto de ${r.vendedor}`} loading="lazy" />
                             <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary-glow/20 text-primary font-bold">
@@ -193,7 +192,10 @@ const toView = (arr: RankItem[]): Array<RankItem & { avatar: string }> =>
                   aria-label={`Corretor ${r.vendedor}, posição ${idx + 4}`}>
                 <div className="flex items-center gap-2">
                   <span className="w-6 text-sm font-semibold">#{idx + 4}</span>
-                  <Tooltip content={`VGV: ${r.vgv.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`}>
+                  <Tooltip>
+                    <span className="text-xs px-2 py-1 bg-muted rounded absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                      VGV: {r.vgv.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                    </span>
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={r.avatar} alt={`Foto de ${r.vendedor}`} loading="lazy" />
                       <AvatarFallback>{(r.vendedor || '—').split(' ').map((n) => n[0]).join('').slice(0,2)}</AvatarFallback>
@@ -207,6 +209,7 @@ const toView = (arr: RankItem[]): Array<RankItem & { avatar: string }> =>
           </ol>
         </div>
       </section>
-      )}
+      
     </main>
+  );
 }
