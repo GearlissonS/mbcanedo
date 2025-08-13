@@ -22,6 +22,22 @@ const GeometricBackground: React.FC = () => {
       aria-hidden="true"
       className="pointer-events-none fixed inset-0 -z-10 [mask-image:linear-gradient(to_bottom,rgba(0,0,0,0.9),rgba(0,0,0,0.6)_40%,rgba(0,0,0,0.35)_75%,rgba(0,0,0,0.15))]"
     >
+      <style>{`
+        @keyframes float {
+          0% { transform: translateY(0px); }
+          50% { transform: translateY(-16px); }
+          100% { transform: translateY(0px); }
+        }
+        @keyframes polygonMove {
+          0% { transform: translateX(0px) scale(1); }
+          50% { transform: translateX(12px) scale(1.04); }
+          100% { transform: translateX(0px) scale(1); }
+        }
+        @keyframes gridGlow {
+          0%,100% { filter: drop-shadow(0 0 0px #fff); }
+          50% { filter: drop-shadow(0 0 8px #3B82F6); }
+        }
+      `}</style>
       {/* SVG grid + abstract shapes using CSS variables for colors */}
       <svg className="absolute inset-0 h-full w-full text-primary" role="img">
         <defs>
@@ -30,19 +46,19 @@ const GeometricBackground: React.FC = () => {
           </pattern>
         </defs>
         <rect width="100%" height="100%" fill="hsl(var(--background))" />
-        <rect width="100%" height="100%" fill="url(#grid)" opacity={lineOpacity} />
+        <rect width="100%" height="100%" fill="url(#grid)" opacity={lineOpacity} style={{ animation: 'gridGlow 4s ease-in-out infinite' }} />
 
-        {/* Abstract angled shapes */}
+        {/* Abstract angled shapes com movimento */}
         <g className="text-accent" opacity={shapeOpacity}>
-          <polygon points="0,120 220,0 0,0" fill="currentColor" />
-          <polygon points="0,260 320,0 220,0 0,120" fill="currentColor" />
+          <polygon points="0,120 220,0 0,0" fill="currentColor" style={{ animation: 'polygonMove 6s ease-in-out infinite' }} />
+          <polygon points="0,260 320,0 220,0 0,120" fill="currentColor" style={{ animation: 'polygonMove 7s ease-in-out infinite', animationDelay: '1s' }} />
         </g>
       </svg>
 
-      {/* Thematic subtle icons */}
+      {/* Thematic subtle icons com animação de flutuação */}
       {settings.showThemedIcons !== false && (
         <div className="absolute inset-0 grid grid-cols-3 md:grid-cols-5 place-items-center gap-8">
-          {[
+          [
             { C: Building2, key: "b1" },
             { C: Home, key: "h1" },
             { C: Handshake, key: "hs1" },
@@ -52,12 +68,21 @@ const GeometricBackground: React.FC = () => {
             { C: Building2, key: "b2" },
             { C: TrendingUp, key: "t2" },
             { C: Handshake, key: "hs2" },
-            { C: KeyRound, key: "k2" },
+            { C: KeyRound, key: "k2" }
           ].map(({ C, key }, i) => (
             <div
               key={key}
               className={`hidden sm:block ${i % 2 === 0 ? "text-primary" : "text-accent"}`}
               style={{ opacity: iconOpacity }}
+            >
+              <C className="w-16 h-16 md:w-20 md:h-20" />
+            </div>
+          ))}
+          ].map(({ C, key }, i) => (
+            <div
+              key={key}
+              className={`hidden sm:block ${i % 2 === 0 ? "text-primary" : "text-accent"}`}
+              style={{ opacity: iconOpacity, animation: `float ${5 + i}s ease-in-out infinite`, animationDelay: `${i * 0.7}s` }}
             >
               <C className="w-16 h-16 md:w-20 md:h-20" />
             </div>
