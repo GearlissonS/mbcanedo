@@ -3,20 +3,23 @@ import { Button } from "@/components/ui/button";
 import { Helmet } from "react-helmet-async";
 import { useSettings } from "@/context/SettingsContext";
 import { Building2, Home as HomeIcon, Handshake, TrendingUp, KeyRound } from "lucide-react";
+
 const Index = () => {
-  const {
-    settings
-  } = useSettings();
+  const { settings } = useSettings();
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: settings.title,
-    url: typeof window !== "undefined" ? window.location.origin : "/"
+    url: typeof window !== "undefined" ? window.location.origin : "/",
   } as const;
-  return <div className="min-h-[calc(100vh-56px)] grid place-items-center bg-gradient-to-b from-background to-muted/40 animate-fade-in">
+  return (
+    <div className="min-h-[calc(100vh-56px)] grid place-items-center bg-gradient-to-b from-background to-muted/40 animate-fade-in">
       <Helmet>
         <title>{settings.title} — Gestão de Vendas Imobiliárias</title>
-        <meta name="description" content={`${settings.title}: soluções modernas para gestão de vendas imobiliárias, equipe e ranking. Tema geométrico em azul marinho e branco.`} />
+        <meta
+          name="description"
+          content={`${settings.title}: soluções modernas para gestão de vendas imobiliárias, equipe e ranking. Tema geométrico em azul marinho e branco.`}
+        />
         <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
       </Helmet>
 
@@ -24,7 +27,7 @@ const Index = () => {
         <div className="relative overflow-hidden rounded-2xl border bg-card/80 backdrop-blur supports-[backdrop-filter]:bg-card/70">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-accent/10" aria-hidden="true" />
 
-          <div className="relative grid items-center gap-8 p-8 md:grid-cols-[1.4fr,1fr] md:p-12 bg-[#467bb0]/[0.21]">
+          <div className="relative grid items-center gap-8 p-8 md:grid-cols-[1.4fr,1fr] md:p-12">
             <div className="text-center md:text-left">
               <div className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm bg-background/70">
                 <span className="inline-block h-2 w-2 rounded-full bg-primary" />
@@ -75,20 +78,31 @@ const Index = () => {
             </div>
 
             <div className="relative mx-auto">
-              {settings.logoDataUrl ? <div className="mx-auto h-40 w-40 sm:h-48 sm:w-48 rounded-full border bg-background/80 shadow-sm flex items-center justify-center">
-                  <img src={settings.logoDataUrl} alt={`Logo ${settings.title}`} className="max-h-28 max-w-28 sm:max-h-32 sm:max-w-32 object-contain" loading="lazy" />
-                </div> : <div className="mx-auto h-40 w-40 sm:h-48 sm:w-48 rounded-2xl border bg-primary/10 shadow-inner flex items-center justify-center">
+              {settings.logoDataUrl ? (
+                <div className="mx-auto h-40 w-40 sm:h-48 sm:w-48 rounded-full border bg-background/80 shadow-sm flex items-center justify-center">
+                  <img
+                    src={settings.logoDataUrl}
+                    alt={`Logo ${settings.title}`}
+                    className="max-h-28 max-w-28 sm:max-h-32 sm:max-w-32 object-contain"
+                    loading="lazy"
+                  />
+                </div>
+              ) : (
+                <div className="mx-auto h-40 w-40 sm:h-48 sm:w-48 rounded-2xl border bg-primary/10 shadow-inner flex items-center justify-center">
                   <div className="grid grid-cols-2 gap-3 text-primary">
                     <Building2 className="h-10 w-10" aria-hidden="true" />
                     <HomeIcon className="h-10 w-10" aria-hidden="true" />
                     <Handshake className="h-10 w-10" aria-hidden="true" />
                     <TrendingUp className="h-10 w-10" aria-hidden="true" />
                   </div>
-                </div>}
+                </div>
+              )}
             </div>
           </div>
         </div>
       </section>
-    </div>;
+    </div>
+  );
 };
+
 export default Index;

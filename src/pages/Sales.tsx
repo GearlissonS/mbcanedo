@@ -2,6 +2,7 @@ import { useData, Sale } from "@/context/DataContext";
 import { useSettings } from "@/context/SettingsContext";
 import { useState, useMemo } from "react";
 import { Helmet } from "react-helmet-async";
+import { useDebounce } from "@/hooks/useDebounce";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -12,6 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Separator } from "@/components/ui/separator";
 import { exportCSV, exportPDF, exportXLSX } from "@/utils/exporters";
 import { format } from "date-fns";
+import { formatCurrencyBR } from "@/lib/utils";
 
 function formatMoney(n: number) {
   return (n ?? 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -191,14 +193,29 @@ export default function Sales() {
               </div>
               <div>
                 <Label>VGV</Label>
-                <Input type="number" step="0.01" value={form.vgv ?? 0} onChange={(e) => {
-                  const vgv = Number(e.target.value);
-                  setForm((f) => ({ ...f, vgv, vgc: f.vgc && editingId ? Number(f.vgc) : recalcVgc(vgv) }));
-                }} />
+                <Input 
+                  type="text" 
+                  value={form.vgv ? formatCurrencyBR(form.vgv, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : ""} 
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^\d]/g, '');
+                    const vgv = value ? Number(value) : 0;
+                    setForm((f) => ({ ...f, vgv, vgc: f.vgc && editingId ? Number(f.vgc) : recalcVgc(vgv) }));
+                  }}
+                  placeholder="0"
+                />
               </div>
               <div>
                 <Label>VGC</Label>
-                <Input type="number" step="0.01" value={form.vgc ?? 0} onChange={(e) => setForm({ ...form, vgc: Number(e.target.value) })} />
+                <Input 
+                  type="text" 
+                  value={form.vgc ? formatCurrencyBR(form.vgc, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : ""} 
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^\d]/g, '');
+                    const vgc = value ? Number(value) : 0;
+                    setForm({ ...form, vgc });
+                  }}
+                  placeholder="0"
+                />
               </div>
               <div>
                 <Label>Tipo</Label>
@@ -211,15 +228,65 @@ export default function Sales() {
               </div>
               <div>
                 <Label>Vendedor</Label>
-                <Input value={form.vendedor || ""} onChange={(e) => setForm({ ...form, vendedor: e.target.value })} />
+                <Select value={form.vendedor || ""} onValueChange={(v) => setForm({ ...form, vendedor: v })}>
+                  <SelectTrigger><SelectValue placeholder="Selecione o vendedor" /></SelectTrigger>
+                  <SelectContent>
+                    {settings.brokers && settings.brokers.length > 0 ? (
+                      settings.brokers.map((broker) => (
+                        <SelectItem key={broker.id} value={broker.name}>
+                          {broker.name}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="" disabled>
+                        Nenhum corretor cadastrado
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+                {(!settings.brokers || settings.brokers.length === 0) && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Cadastre corretores em Configurações → Corretores
+                  </p>
+                )}
               </div>
               <div>
                 <Label>Captador</Label>
-                <Input value={form.captador || ""} onChange={(e) => setForm({ ...form, captador: e.target.value })} />
+                <Select value={form.captador || ""} onValueChange={(v) => setForm({ ...form, captador: v })}>
+                  <SelectTrigger><SelectValue placeholder="Selecione o captador" /></SelectTrigger>
+                  <SelectContent>
+                    {settings.brokers && settings.brokers.length > 0 ? (
+                      settings.brokers.map((broker) => (
+                        <SelectItem key={broker.id} value={broker.name}>
+                          {broker.name}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="" disabled>
+                        Nenhum corretor cadastrado
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <Label>Gerente</Label>
-                <Input value={form.gerente || ""} onChange={(e) => setForm({ ...form, gerente: e.target.value })} />
+                <Select value={form.gerente || ""} onValueChange={(v) => setForm({ ...form, gerente: v })}>
+                  <SelectTrigger><SelectValue placeholder="Selecione o gerente" /></SelectTrigger>
+                  <SelectContent>
+                    {settings.brokers && settings.brokers.length > 0 ? (
+                      settings.brokers.map((broker) => (
+                        <SelectItem key={broker.id} value={broker.name}>
+                          {broker.name}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="" disabled>
+                        Nenhum corretor cadastrado
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <Label>Status</Label>

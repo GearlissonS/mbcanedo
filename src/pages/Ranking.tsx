@@ -176,7 +176,7 @@ const toView = (arr: RankItem[]): Array<RankItem & { avatar: string }> =>
                 </Avatar>
                 <span className="font-medium">{r.vendedor || '—'}</span>
               </div>
-              <span className="text-sm text-muted-foreground">{r.vgv.toLocaleString('pt-BR',{ style:'currency', currency:'BRL' })}</span>
+                                      <span className="text-sm text-muted-foreground">{r.vgv.toLocaleString('pt-BR',{ style:'currency', currency:'BRL' })}</span>
               </li>
             ))}
           </ol>

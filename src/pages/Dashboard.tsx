@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { KPICard } from "@/components/KPICard";
 import { EmptyState } from "@/components/EmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { TrendingUp, DollarSign, Users, Target, BarChart3 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -15,14 +16,15 @@ import {
   PieChart, Pie, Cell
 } from "recharts";
 import { CustomTooltip } from "@/components/charts/CustomTooltip";
+import { formatCurrencyBR } from "@/lib/utils";
 
 function monthKey(dateStr: string) {
   const d = new Date(dateStr);
   return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}`;
 }
 
-// Dados fictícios para demonstração
-const mockSales = [
+// Dados fictícios para demonstração - REMOVER EM PRODUÇÃO
+const mockSales = sales.length > 0 ? [] : [
   { id: "1", dataCompetencia: "2024-12-01", dataVencimento: "2024-12-15", cliente: "João Silva", origem: "Indicação", estilo: "Clássico", produto: "Apartamento 2Q", vgv: 450000, vgc: 22500, tipo: "Revenda", vendedor: "Ana Souza", captador: "Bruno Lima", gerente: "Carla Mendes", status: "Aprovada", pago: true, createdAt: "2024-12-01T08:00:00Z" },
   { id: "2", dataCompetencia: "2024-12-03", dataVencimento: "2024-12-18", cliente: "Maria Santos", origem: "Digital", estilo: "Moderno", produto: "Casa 3Q", vgv: 680000, vgc: 34000, tipo: "Lançamento", vendedor: "Bruno Lima", captador: "Ana Souza", gerente: "Diego Rocha", status: "Em análise", pago: false, createdAt: "2024-12-03T10:30:00Z" },
   { id: "3", dataCompetencia: "2024-12-05", dataVencimento: "2024-12-20", cliente: "Pedro Costa", origem: "Portaria", estilo: "Luxo", produto: "Cobertura", vgv: 1200000, vgc: 60000, tipo: "Lançamento", vendedor: "Carla Mendes", captador: "Felipe Nunes", gerente: "Eduarda Pires", status: "Aprovada", pago: true, createdAt: "2024-12-05T14:15:00Z" },
@@ -31,12 +33,7 @@ const mockSales = [
 ];
 
 const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value);
+  return formatCurrencyBR(value, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 };
 
 const formatTooltip = (value: any, name: string) => {
@@ -116,7 +113,7 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
       map[k].vgv += s.vgv;
       map[k].vgc += s.vgc;
     });
-    return Object.entries(map).sort(([a],[b]) => a.localeCompare(b)).map(([k,v]) => ({ mes: k, VGV: Number(v.vgv.toFixed(2)), VGC: Number(v.vgc.toFixed(2)) }));
+            return Object.entries(map).sort(([a],[b]) => a.localeCompare(b)).map(([k,v]) => ({ mes: k, VGV: Number(v.vgv.toFixed(2)), VGC: Number(v.vgc.toFixed(2)) }));
   }, [filtered]);
 
   const ranking = useMemo(() => {
@@ -196,6 +193,12 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
             <Skeleton key={i} className="h-32" />
           ))}
         </div>
+      ) : activeSales.length === 0 ? (
+        <EmptyState 
+          icon={<BarChart3 className="h-12 w-12" />}
+          title="Nenhum dado encontrado"
+          description="Adicione vendas para ver os gráficos e estatísticas no dashboard."
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <KPICard

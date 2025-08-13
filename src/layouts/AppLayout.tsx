@@ -37,7 +37,7 @@ export default function AppLayout() {
           </div>
         </header>
 
-        <main className="p-4">
+        <main id="main-content" className="p-4">
           <Outlet />
         </main>
       </SidebarInset>
