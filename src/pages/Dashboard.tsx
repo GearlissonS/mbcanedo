@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { Palette, Sun, Moon, CalendarDays, User } from "lucide-react";
 import { useData } from "@/context/data-core";
 import { useSettings } from "@/context/SettingsContext";
 import { Helmet } from "react-helmet-async";
@@ -23,7 +24,7 @@ import { formatCurrencyBR } from "@/lib/utils";
 function monthKey(dateStr: string) {
   const d = new Date(dateStr);
   return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}`;
-}
+
 
 type SaleItem = {
   id: string;
@@ -64,14 +65,25 @@ const formatTooltip = (value: unknown, name: string) => {
   return [String(value ?? ''), name];
 };
 
-export default function Dashboard() {
   // Theme/paleta
   const { theme, palette, setTheme, setPalette, savePreferences } = useTheme();
-  const [primary, setPrimary] = useState(palette.primary);
-  const [secondary, setSecondary] = useState(palette.secondary);
+  const [previewPalette, setPreviewPalette] = useState(palette);
+  const [previewTheme, setPreviewTheme] = useState(theme);
+  const [saving, setSaving] = useState(false);
+  const handlePaletteChange = (patch) => setPreviewPalette(prev => ({ ...prev, ...patch }));
+  const handleThemeChange = (t) => setPreviewTheme(t);
+  const quickPalettes = [
+    { primary: "#2563eb", secondary: "#0ea5e9" },
+    { primary: "#22c55e", secondary: "#0ea5e9" },
+    { primary: "#a21caf", secondary: "#6366f1" },
+  ];
+  const handleQuickPalette = (p) => setPreviewPalette(p);
   const handleSave = async () => {
-    setPalette({ primary, secondary });
+    setSaving(true);
+    setPalette(previewPalette);
+    setTheme(previewTheme);
     await savePreferences();
+    setSaving(false);
   };
   const { sales } = useData();
   const { settings } = useSettings();
@@ -179,36 +191,51 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
         <meta name="description" content="Gráficos (VGV, VGC, Ranking, Tipos, Origem) com filtros por período e corretor." />
       </Helmet>
 
-      {/* Painel de configurações visual */}
-      <div className="mb-6 p-4 rounded-xl shadow bg-white dark:bg-slate-800 flex flex-col md:flex-row gap-4 items-center justify-between">
-        <div className="flex gap-4 items-center">
-          <button
-            className={`px-4 py-2 rounded font-semibold transition ${theme === 'light' ? 'bg-primary text-white' : 'bg-slate-700 text-white'}`}
-            onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-          >
-            {theme === 'light' ? '🌞 Modo Claro' : '🌙 Modo Escuro'}
-          </button>
-          <div className="flex flex-col gap-2">
+      {/* Card de Personalização do Dashboard */}
+      <motion.div layout className="mb-6 p-6 rounded-2xl shadow-xl bg-white/80 dark:bg-slate-900/80 flex flex-col gap-4 items-center max-w-3xl mx-auto border border-primary/20">
+        <h2 className="font-bold text-lg mb-2 flex items-center gap-2"><Palette size={20}/> Personalização do Dashboard</h2>
+        <div className="flex flex-wrap gap-4 items-center justify-center w-full">
+          <div className="flex gap-2 items-center">
+            <button
+              className={`px-3 py-2 rounded-lg font-semibold flex items-center gap-1 transition ${previewTheme === 'light' ? 'bg-primary text-white' : 'bg-slate-700 text-white'}`}
+              onClick={() => handleThemeChange('light')}
+            ><Sun size={18}/> Claro</button>
+            <button
+              className={`px-3 py-2 rounded-lg font-semibold flex items-center gap-1 transition ${previewTheme === 'dark' ? 'bg-primary text-white' : 'bg-slate-700 text-white'}`}
+              onClick={() => handleThemeChange('dark')}
+            ><Moon size={18}/> Escuro</button>
+          </div>
+          <div className="flex flex-col gap-1 items-center">
             <label className="text-xs font-medium">Cor Primária</label>
-            <input type="color" value={primary} onChange={e => setPrimary(e.target.value)} className="w-10 h-10 rounded border" />
+            <input type="color" value={previewPalette.primary} onChange={e => handlePaletteChange({ primary: e.target.value })} className="w-10 h-10 rounded border" />
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1 items-center">
             <label className="text-xs font-medium">Cor Secundária</label>
-            <input type="color" value={secondary} onChange={e => setSecondary(e.target.value)} className="w-10 h-10 rounded border" />
+            <input type="color" value={previewPalette.secondary} onChange={e => handlePaletteChange({ secondary: e.target.value })} className="w-10 h-10 rounded border" />
+          </div>
+          <div className="flex flex-col gap-1 items-center">
+            <label className="text-xs font-medium">Paletas rápidas</label>
+            <div className="flex gap-2">
+              {quickPalettes.map((p, i) => (
+                <button key={i} className="w-8 h-8 rounded-full border-2 border-white shadow" style={{background: `linear-gradient(135deg, ${p.primary}, ${p.secondary})`}} onClick={() => handleQuickPalette(p)} />
+              ))}
+            </div>
           </div>
           <button
-            className="px-4 py-2 rounded bg-green-600 text-white font-semibold"
+            className="px-3 py-2 rounded-lg bg-green-600 text-white font-semibold flex items-center gap-1"
             onClick={handleSave}
-          >Salvar Preferências</button>
+            disabled={saving}
+          >💾 Salvar</button>
         </div>
-        <span className="text-xs text-muted-foreground">Personalize seu dashboard: cores e modo</span>
-      </div>
+      </motion.div>
 
-      <div className="flex flex-wrap items-end gap-3">
-        <div>
-          <Label>Período</Label>
-          <Select value={mode} onValueChange={(v: "mensal" | "anual" | "custom") => setMode(v)}>
-            <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+      {/* Barra de filtros com ícones */}
+      <motion.div layout className="flex flex-wrap items-center gap-4 mb-6 px-2 py-3 rounded-xl bg-white/70 dark:bg-slate-900/70 border border-primary/10 shadow max-w-3xl mx-auto">
+        <div className="flex items-center gap-2">
+          <CalendarDays size={18} className="text-primary" />
+          <Label className="mr-1">Período</Label>
+          <Select value={mode} onValueChange={(v) => setMode(v)}>
+            <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="mensal">Mensal</SelectItem>
               <SelectItem value="anual">Anual</SelectItem>
@@ -216,10 +243,11 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
             </SelectContent>
           </Select>
         </div>
-        <div>
-          <Label>Corretor</Label>
-          <Select value={seller} onValueChange={(v) => setSeller(v)}>
-            <SelectTrigger className="w-48"><SelectValue placeholder="Todos" /></SelectTrigger>
+        <div className="flex items-center gap-2">
+          <User size={18} className="text-primary" />
+          <Label className="mr-1">Corretor</Label>
+          <Select value={seller} onValueChange={(v: string) => setSeller(v)}>
+            <SelectTrigger className="w-36"><SelectValue placeholder="Todos" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos</SelectItem>
               {vendedores.map((v) => (<SelectItem key={v} value={v}>{v}</SelectItem>))}
@@ -228,82 +256,95 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
         </div>
         {mode === "custom" && (
           <>
-            <div>
+            <div className="flex items-center gap-2">
               <Label>Início</Label>
               <Input type="date" value={start} onChange={(e) => setStart(e.target.value)} />
             </div>
-            <div>
+            <div className="flex items-center gap-2">
               <Label>Fim</Label>
               <Input type="date" value={end} onChange={(e) => setEnd(e.target.value)} />
             </div>
           </>
         )}
-      </div>
+      </motion.div>
 
-      {/* Cards de KPI */}
-      {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-32" />
-          ))}
-        </div>
-      ) : activeSales.length === 0 ? (
-        <EmptyState 
-          icon={BarChart3}
-          title="Nenhum dado encontrado"
-          description="Adicione vendas para ver os gráficos e estatísticas no dashboard."
-        />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[{
-            title: "VGV Total",
-            value: formatCurrency(kpis.totalVgv),
-            subtitle: "Volume Geral de Vendas",
-            icon: DollarSign,
-            trend: { value: pct(kpis.totalVgv, prevKpis.totalVgv), label: "vs período anterior" }
-          }, {
-            title: "VGC Total",
-            value: formatCurrency(kpis.totalVgc),
-            subtitle: "Volume Geral de Comissão",
-            icon: TrendingUp,
-            trend: { value: pct(kpis.totalVgc, prevKpis.totalVgc), label: "vs período anterior" }
-          }, {
-            title: "Vendas",
-            value: kpis.totalSales,
-            subtitle: "Total de transações",
-            icon: BarChart3,
-            trend: { value: pct(kpis.totalSales, prevKpis.totalSales), label: "vs período anterior" }
-          }, {
-            title: "Taxa de Conversão",
-            value: `${kpis.conversionRate.toFixed(1)}%`,
-            subtitle: "Aprovadas vs Total",
-            icon: Target,
-            trend: { value: pct(kpis.conversionRate, prevKpis.conversionRate), label: "vs período anterior" }
-          }].map((props, idx) => (
-            <motion.div
-              key={props.title}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.2 + idx * 0.15 }}
-              whileHover={{ scale: 1.04, boxShadow: "0 8px 32px #0A1B4D55" }}
-            >
-              <KPICard {...props} />
-            </motion.div>
-          ))}
-        </div>
-      )}
-
-      {/* Aviso sobre dados fictícios */}
-      {sales.length === 0 && (
-        <div className="bg-muted/50 border border-border rounded-lg p-4">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Users className="h-4 w-4" />
-            <span>Exibindo dados fictícios para demonstração. Adicione vendas reais para ver seus dados.</span>
+      {/* Cards de KPI redesenhados */}
+      <AnimatePresence>
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-36" />
+            ))}
           </div>
+        ) : activeSales.length === 0 ? (
+          <EmptyState 
+            icon={BarChart3}
+            title="Nenhum dado encontrado"
+            description="Adicione vendas para ver os gráficos e estatísticas no dashboard."
+          />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[{
+              title: "VGV Total",
+              value: formatCurrency(kpis.totalVgv),
+              subtitle: "Volume Geral de Vendas",
+              icon: DollarSign,
+              trend: { value: pct(kpis.totalVgv, prevKpis.totalVgv), label: "vs período anterior" },
+              color: kpis.totalVgv >= prevKpis.totalVgv ? "from-green-500 to-blue-500" : "from-red-500 to-blue-500"
+            }, {
+              title: "VGC Total",
+              value: formatCurrency(kpis.totalVgc),
+              subtitle: "Volume Geral de Comissão",
+              icon: TrendingUp,
+              trend: { value: pct(kpis.totalVgc, prevKpis.totalVgc), label: "vs período anterior" },
+              color: kpis.totalVgc >= prevKpis.totalVgc ? "from-green-500 to-cyan-500" : "from-red-500 to-cyan-500"
+            }, {
+              title: "Vendas",
+              value: kpis.totalSales,
+              subtitle: "Total de transações",
+              icon: BarChart3,
+              trend: { value: pct(kpis.totalSales, prevKpis.totalSales), label: "vs período anterior" },
+              color: kpis.totalSales >= prevKpis.totalSales ? "from-green-500 to-purple-500" : "from-red-500 to-purple-500"
+            }, {
+              title: "Taxa de Conversão",
+              value: `${kpis.conversionRate.toFixed(1)}%`,
+              subtitle: "Aprovadas vs Total",
+              icon: Target,
+              trend: { value: pct(kpis.conversionRate, prevKpis.conversionRate), label: "vs período anterior" },
+              color: kpis.conversionRate >= prevKpis.conversionRate ? "from-green-500 to-indigo-500" : "from-red-500 to-indigo-500"
+            }].map((props, idx) => (
+              <motion.div
+                key={props.title}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 30 }}
+                transition={{ duration: 0.7, delay: 0.2 + idx * 0.15 }}
+                whileHover={{ scale: 1.06 }}
+                className={`rounded-2xl p-6 shadow-xl bg-gradient-to-br ${props.color} text-white flex flex-col items-center justify-center gap-2 relative`}
+              >
+                <div className="absolute top-3 right-3 text-xs opacity-60">{props.trend.value >= 0 ? "▲" : "▼"} {props.trend.value}%</div>
+                <props.icon size={36} className="mb-2" />
+                <div className="font-bold text-lg mb-1">{props.title}</div>
+                <div className="text-4xl font-extrabold mb-1 transition-all duration-500">{props.value}</div>
+                <div className="text-xs opacity-80 mb-2">{props.subtitle}</div>
+                {/* Mini indicador de progresso */}
+                <div className="w-full h-2 rounded bg-white/20 overflow-hidden">
+                  <motion.div className="h-2 rounded bg-white/80" style={{ width: `${Math.min(100, Math.abs(props.trend.value))}%` }} layout transition={{ duration: 0.5 }} />
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Badge de demonstração discreto */}
+      {sales.length === 0 && (
+        <div className="absolute top-4 right-4 z-50">
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-yellow-400 text-black text-xs font-bold shadow">DEMO <Users size={14}/> Dados fictícios</span>
         </div>
       )}
 
-      <section className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+  <section className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-8">
         <div className="rounded-xl border bg-card p-4">
           <h2 className="font-semibold mb-2">VGV Mensal</h2>
           <div className="h-72">
@@ -316,8 +357,8 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
                 <Bar dataKey="VGV" fill={`url(#vgvGradient)`} radius={[10,10,0,0]} isAnimationActive={true} animationDuration={1200} />
                 <defs>
                   <linearGradient id="vgvGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={primary} />
-                    <stop offset="100%" stopColor={secondary} />
+                    <stop offset="0%" stopColor={previewPalette.primary} />
+                    <stop offset="100%" stopColor={previewPalette.secondary} />
                   </linearGradient>
                 </defs>
               </BarChart>
@@ -336,8 +377,8 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
                 <Bar dataKey="VGC" fill={`url(#vgcGradient)`} radius={[10,10,0,0]} isAnimationActive={true} animationDuration={1200} />
                 <defs>
                   <linearGradient id="vgcGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={secondary} />
-                    <stop offset="100%" stopColor={primary} />
+                    <stop offset="0%" stopColor={previewPalette.secondary} />
+                    <stop offset="100%" stopColor={previewPalette.primary} />
                   </linearGradient>
                 </defs>
               </BarChart>
@@ -376,7 +417,7 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
                   <Tooltip content={<CustomTooltip currency />} />
                   <Pie data={tipoData} dataKey="value" nameKey="name" outerRadius={80} label isAnimationActive={true} animationDuration={1200} cornerRadius={10}>
                     {tipoData.map((_, i) => (
-                      <Cell key={i} fill={i % 2 === 0 ? primary : secondary} />
+                      <Cell key={i} fill={i % 2 === 0 ? previewPalette.primary : previewPalette.secondary} />
                     ))}
                   </Pie>
                 </PieChart>
@@ -391,7 +432,7 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
                   <Tooltip content={<CustomTooltip currency />} />
                   <Pie data={origemData} dataKey="value" nameKey="name" outerRadius={80} label isAnimationActive={true} animationDuration={1200} cornerRadius={10}>
                     {origemData.map((_, i) => (
-                      <Cell key={i} fill={i % 2 === 0 ? secondary : primary} />
+                      <Cell key={i} fill={i % 2 === 0 ? previewPalette.secondary : previewPalette.primary} />
                     ))}
                   </Pie>
                 </PieChart>
@@ -405,7 +446,7 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie data={gaugeData} dataKey="value" nameKey="name" innerRadius={60} outerRadius={90} isAnimationActive={true} animationDuration={1200} cornerRadius={10}>
-                  <Cell fill={secondary} />
+                  <Cell fill={previewPalette.secondary} />
                   <Cell fill="#e5e7eb" />
                 </Pie>
               </PieChart>
