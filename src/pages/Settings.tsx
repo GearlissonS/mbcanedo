@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSettings, MenuKey } from "@/context/SettingsContext";
 import { useData } from "@/context/data-core";
 import type { Sale } from "@/context/types";
@@ -14,14 +14,29 @@ export default function Settings() {
   const { settings, updateSettings, applyTheme } = useSettings();
   const { sales, setSales } = useData();
 
-  const [primary, setPrimary] = useState(settings.primaryHex);
-  const [accent, setAccent] = useState(settings.accentHex);
+  // Estado local para preview instantâneo
+  const [previewSettings, setPreviewSettings] = useState(settings);
+  useEffect(() => {
+    setPreviewSettings(settings);
+  }, [settings]);
+
+  // Aplica preview instantâneo ao tema
+  useEffect(() => {
+    applyTheme();
+  }, [previewSettings, applyTheme]);
+
+  // Handlers para campos
+  const handleChange = (patch: Partial<typeof previewSettings>) => {
+    setPreviewSettings(prev => ({ ...prev, ...patch }));
+  };
+
   const [chartColors, setChartColors] = useState(settings.chartColors.join(","));
+  useEffect(() => {
+    setChartColors(previewSettings.chartColors.join(","));
+  }, [previewSettings.chartColors]);
 
   const saveTheme = () => {
-    const colors = chartColors.split(",").map((c) => c.trim()).filter(Boolean);
-    updateSettings({ primaryHex: primary, accentHex: accent, chartColors: colors });
-    applyTheme();
+    updateSettings(previewSettings);
   };
 
   const moveMenu = (key: MenuKey, dir: -1 | 1) => {
@@ -92,11 +107,11 @@ export default function Settings() {
               <div className="space-y-3">
                 <div>
                   <Label>Título da Home</Label>
-                  <Input value={settings.title} onChange={(e) => updateSettings({ title: e.target.value })} />
+                  <Input value={previewSettings.title} onChange={(e) => handleChange({ title: e.target.value })} />
                 </div>
                 <div>
                   <Label>Descrição da Home</Label>
-                  <Input value={settings.homeDescription ?? ""} onChange={(e) => updateSettings({ homeDescription: e.target.value })} />
+                  <Input value={previewSettings.homeDescription ?? ""} onChange={(e) => handleChange({ homeDescription: e.target.value })} />
                 </div>
                 <div>
                   <Label>Imagem da Home</Label>
@@ -104,34 +119,43 @@ export default function Settings() {
                     const file = e.target.files?.[0];
                     if (!file) return;
                     const reader = new FileReader();
-                    reader.onload = () => updateSettings({ homeImage: String(reader.result) });
+                    reader.onload = () => handleChange({ homeImage: String(reader.result) });
                     reader.readAsDataURL(file);
                   }} />
-                  {settings.homeImage && (
-                    <img src={settings.homeImage} alt="Home" className="mt-2 w-32 h-20 object-contain rounded-lg border" />
+                  {previewSettings.homeImage && (
+                    <img src={previewSettings.homeImage} alt="Home" className="mt-2 w-32 h-20 object-contain rounded-lg border" />
                   )}
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label>Cor Primária</Label>
-                    <Input type="color" value={primary} onChange={(e) => setPrimary(e.target.value)} />
+                    <Input type="color" value={previewSettings.primaryHex} onChange={(e) => handleChange({ primaryHex: e.target.value })} />
                   </div>
                   <div>
                     <Label>Cor de Acento</Label>
-                    <Input type="color" value={accent} onChange={(e) => setAccent(e.target.value)} />
+                    <Input type="color" value={previewSettings.accentHex} onChange={(e) => handleChange({ accentHex: e.target.value })} />
                   </div>
                 </div>
                 <div>
                   <Label>Cores dos Gráficos (separe por vírgula)</Label>
-                  <Input value={chartColors} onChange={(e) => setChartColors(e.target.value)} />
+                  <Input value={chartColors} onChange={(e) => {
+                    setChartColors(e.target.value);
+                    handleChange({ chartColors: e.target.value.split(",").map((c) => c.trim()).filter(Boolean) });
+                  }} />
                 </div>
                 <div>
                   <Label>Logo</Label>
-                  <Input type="file" accept="image/*" onChange={onLogo} />
+                  <Input type="file" accept="image/*" onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = () => handleChange({ logoDataUrl: String(reader.result) });
+                    reader.readAsDataURL(file);
+                  }} />
                 </div>
                 <div>
                   <Label>Modo</Label>
-                  <select value={settings.theme ?? "light"} onChange={e => updateSettings({ theme: e.target.value as "light" | "dark" })} className="w-full border rounded px-2 py-1">
+                  <select value={previewSettings.theme ?? "light"} onChange={e => handleChange({ theme: e.target.value as "light" | "dark" })} className="w-full border rounded px-2 py-1">
                     <option value="light">Claro</option>
                     <option value="dark">Escuro</option>
                   </select>
