@@ -15,35 +15,38 @@ const Settings = lazy(() => import("./pages/Settings"));
 const RankingFull = lazy(() => import("./pages/RankingFull"));
 import { SettingsProvider } from "@/context/SettingsContext";
 import { DataProvider } from "@/context/DataContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <HelmetProvider>
-      <SettingsProvider>
-        <DataProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Suspense fallback={<div className="flex justify-center items-center h-screen text-lg">Carregando...</div>}>
-                <Routes>
-                  <Route element={<AppLayout />}>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/sales" element={<Sales />} />
-                    <Route path="/ranking" element={<Ranking />} />
-                    <Route path="/ranking/full" element={<RankingFull />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/settings" element={<Settings />} />
-                  </Route>
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </Suspense>
-            </BrowserRouter>
-          </TooltipProvider>
-        </DataProvider>
-      </SettingsProvider>
+      <ThemeProvider userId="demo-user">
+        <SettingsProvider>
+          <DataProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Suspense fallback={<div className="flex justify-center items-center h-screen text-lg">Carregando...</div>}>
+                  <Routes>
+                    <Route element={<AppLayout />}>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/sales" element={<Sales />} />
+                      <Route path="/ranking" element={<Ranking />} />
+                      <Route path="/ranking/full" element={<RankingFull />} />
+                      <Route path="/dashboard" element={<Dashboard />} />
+                      <Route path="/settings" element={<Settings />} />
+                    </Route>
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </Suspense>
+              </BrowserRouter>
+            </TooltipProvider>
+          </DataProvider>
+        </SettingsProvider>
+      </ThemeProvider>
     </HelmetProvider>
   </QueryClientProvider>
 );

@@ -16,19 +16,28 @@ interface KPICardProps {
 
 export function KPICard({ title, value, subtitle, icon: Icon, trend, className }: KPICardProps) {
   return (
-    <Card className={cn("hover:shadow-[var(--shadow-elevated)] transition-shadow duration-300", className)}>
+    <Card
+      className={cn(
+        "rounded-2xl shadow-lg transition-shadow duration-300 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-secondary)] text-white",
+        "hover:scale-[1.03]",
+        className
+      )}
+      style={{ fontFamily: 'Inter, Poppins, sans-serif' }}
+    >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
+        <div className="flex items-center gap-3">
+          <Icon className="h-10 w-10 text-white drop-shadow-lg" />
+          <CardTitle className="text-base font-semibold text-white">{title}</CardTitle>
+        </div>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-        {subtitle && <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>}
+        <div className="text-3xl md:text-4xl font-bold leading-tight">{value}</div>
+        {subtitle && <p className="text-xs text-white/80 mt-1 font-medium">{subtitle}</p>}
         {trend && (
           <div className="flex items-center mt-2">
             <span className={cn(
-              "text-xs font-medium flex items-center",
-              trend.value > 0 ? "text-green-600" : trend.value < 0 ? "text-red-600" : "text-muted-foreground"
+              "text-xs font-semibold flex items-center",
+              trend.value > 0 ? "text-green-200" : trend.value < 0 ? "text-red-200" : "text-white/80"
             )}>
               {trend.value > 0 ? "↗" : trend.value < 0 ? "↘" : "→"} {Math.abs(trend.value)}% {trend.label}
             </span>

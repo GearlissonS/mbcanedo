@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useData } from "@/context/DataContext";
 import { useSettings } from "@/context/SettingsContext";
 import { Helmet } from "react-helmet-async";
+import { useTheme } from "@/context/ThemeContext";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -44,6 +45,14 @@ const formatTooltip = (value: any, name: string) => {
 };
 
 export default function Dashboard() {
+  // Theme/paleta
+  const { theme, palette, setTheme, setPalette, savePreferences } = useTheme();
+  const [primary, setPrimary] = useState(palette.primary);
+  const [secondary, setSecondary] = useState(palette.secondary);
+  const handleSave = async () => {
+    setPalette({ primary, secondary });
+    await savePreferences();
+  };
   const { sales } = useData();
   const { settings } = useSettings();
   const [mode, setMode] = useState<"mensal" | "anual" | "custom">("mensal");
@@ -150,6 +159,31 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
         <meta name="description" content="Gráficos (VGV, VGC, Ranking, Tipos, Origem) com filtros por período e corretor." />
       </Helmet>
 
+      {/* Painel de configurações visual */}
+      <div className="mb-6 p-4 rounded-xl shadow bg-white dark:bg-slate-800 flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div className="flex gap-4 items-center">
+          <button
+            className={`px-4 py-2 rounded font-semibold transition ${theme === 'light' ? 'bg-primary text-white' : 'bg-slate-700 text-white'}`}
+            onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+          >
+            {theme === 'light' ? '🌞 Modo Claro' : '🌙 Modo Escuro'}
+          </button>
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-medium">Cor Primária</label>
+            <input type="color" value={primary} onChange={e => setPrimary(e.target.value)} className="w-10 h-10 rounded border" />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-medium">Cor Secundária</label>
+            <input type="color" value={secondary} onChange={e => setSecondary(e.target.value)} className="w-10 h-10 rounded border" />
+          </div>
+          <button
+            className="px-4 py-2 rounded bg-green-600 text-white font-semibold"
+            onClick={handleSave}
+          >Salvar Preferências</button>
+        </div>
+        <span className="text-xs text-muted-foreground">Personalize seu dashboard: cores e modo</span>
+      </div>
+
       <div className="flex flex-wrap items-end gap-3">
         <div>
           <Label>Período</Label>
@@ -195,7 +229,7 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
         </div>
       ) : activeSales.length === 0 ? (
         <EmptyState 
-          icon={<BarChart3 className="h-12 w-12" />}
+          icon={BarChart3}
           title="Nenhum dado encontrado"
           description="Adicione vendas para ver os gráficos e estatísticas no dashboard."
         />
@@ -252,7 +286,13 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
                 <YAxis tickFormatter={(value) => formatCurrency(value).replace('R$', 'R$ ')} />
                 <Tooltip content={<CustomTooltip currency />} />
                 <Legend />
-                <Bar dataKey="VGV" fill={colors[0]} />
+                <Bar dataKey="VGV" fill={`url(#vgvGradient)`} radius={[10,10,0,0]} isAnimationActive={true} animationDuration={1200} />
+                <defs>
+                  <linearGradient id="vgvGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={primary} />
+                    <stop offset="100%" stopColor={secondary} />
+                  </linearGradient>
+                </defs>
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -266,23 +306,38 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
                 <YAxis tickFormatter={(value) => formatCurrency(value).replace('R$', 'R$ ')} />
                 <Tooltip content={<CustomTooltip currency />} />
                 <Legend />
-                <Bar dataKey="VGC" fill={colors[1]} />
+                <Bar dataKey="VGC" fill={`url(#vgcGradient)`} radius={[10,10,0,0]} isAnimationActive={true} animationDuration={1200} />
+                <defs>
+                  <linearGradient id="vgcGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={secondary} />
+                    <stop offset="100%" stopColor={primary} />
+                  </linearGradient>
+                </defs>
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
         <div className="rounded-xl border bg-card p-4">
           <h2 className="font-semibold mb-2">Ranking de Corretores</h2>
-          <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={ranking}>
-                <XAxis dataKey="vendedor" hide />
-                <YAxis tickFormatter={(value) => formatCurrency(value).replace('R$', 'R$ ')} />
-                <Tooltip content={<CustomTooltip currency />} />
-                <Legend />
-                <Bar dataKey="VGV" fill={colors[2]} />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="h-72 overflow-auto">
+            <ul className="space-y-2">
+              {ranking.map((r, idx) => {
+                let medalColor = '';
+                if (idx === 0) medalColor = 'bg-yellow-400';
+                if (idx === 1) medalColor = 'bg-gray-400';
+                if (idx === 2) medalColor = 'bg-orange-400';
+                return (
+                  <li key={r.vendedor} className="flex items-center gap-3 p-2 rounded-lg shadow-sm bg-white dark:bg-slate-800">
+                    <div className="relative">
+                      <img src={`https://i.pravatar.cc/40?u=${encodeURIComponent(r.vendedor)}`} alt={r.vendedor} className="h-10 w-10 rounded-full object-cover border-2 border-primary" />
+                      {idx < 3 && <span className={`absolute -top-2 -right-2 h-5 w-5 rounded-full flex items-center justify-center text-xs font-bold text-white ${medalColor}`}>{idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉'}</span>}
+                    </div>
+                    <span className="font-semibold text-base">{r.vendedor}</span>
+                    <span className="ml-auto font-bold text-green-700">{formatCurrency(r.VGV)}</span>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
         </div>
         <div className="rounded-xl border bg-card p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -292,9 +347,9 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Tooltip content={<CustomTooltip currency />} />
-                  <Pie data={tipoData} dataKey="value" nameKey="name" outerRadius={80} label>
+                  <Pie data={tipoData} dataKey="value" nameKey="name" outerRadius={80} label isAnimationActive={true} animationDuration={1200} cornerRadius={10}>
                     {tipoData.map((_, i) => (
-                      <Cell key={i} fill={colors[i % colors.length]} />
+                      <Cell key={i} fill={i % 2 === 0 ? primary : secondary} />
                     ))}
                   </Pie>
                 </PieChart>
@@ -307,9 +362,9 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Tooltip content={<CustomTooltip currency />} />
-                  <Pie data={origemData} dataKey="value" nameKey="name" outerRadius={80} label>
+                  <Pie data={origemData} dataKey="value" nameKey="name" outerRadius={80} label isAnimationActive={true} animationDuration={1200} cornerRadius={10}>
                     {origemData.map((_, i) => (
-                      <Cell key={i} fill={colors[(i+2) % colors.length]} />
+                      <Cell key={i} fill={i % 2 === 0 ? secondary : primary} />
                     ))}
                   </Pie>
                 </PieChart>
@@ -322,8 +377,8 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={gaugeData} dataKey="value" nameKey="name" innerRadius={60} outerRadius={90}>
-                  <Cell fill={colors[1]} />
+                <Pie data={gaugeData} dataKey="value" nameKey="name" innerRadius={60} outerRadius={90} isAnimationActive={true} animationDuration={1200} cornerRadius={10}>
+                  <Cell fill={secondary} />
                   <Cell fill="#e5e7eb" />
                 </Pie>
               </PieChart>

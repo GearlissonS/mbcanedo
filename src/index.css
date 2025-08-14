@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here.
 All colors MUST be HSL.
 */
 
@@ -102,5 +102,9 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground font-jakarta;
+  }
+  html {
+    scroll-behavior: smooth;
+    font-family: 'Inter', 'Poppins', sans-serif;
   }
 }
