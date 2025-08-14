@@ -1,8 +1,5 @@
 // Função para buscar vendas do Supabase (exemplo, não chamada ainda)
-import { createClient } from '@supabase/supabase-js';
-const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || '';
-const supabaseKey = process.env.REACT_APP_SUPABASE_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { supabase } from '@/context/ThemeContext';
 
 async function fetchSalesFromSupabase(brokerId: string, period: 'mensal'|'anual') {
   const now = new Date();
@@ -13,7 +10,7 @@ async function fetchSalesFromSupabase(brokerId: string, period: 'mensal'|'anual'
     fromDate = new Date(now.getFullYear(), 0, 1);
   }
   const { data, error } = await supabase
-    .from('sales')
+  .from('vendas')
     .select('*')
     .eq('brokerId', brokerId)
     .gte('soldAt', fromDate.toISOString());
