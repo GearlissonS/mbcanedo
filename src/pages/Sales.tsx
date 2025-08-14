@@ -1,4 +1,5 @@
-import { useData, Sale } from "@/context/DataContext";
+import { useData } from "@/context/data-core";
+import type { Sale } from "@/context/types";
 import { useSettings } from "@/context/SettingsContext";
 import { useState, useMemo } from "react";
 import { Helmet } from "react-helmet-async";
@@ -10,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { motion } from "framer-motion";
 import { Separator } from "@/components/ui/separator";
 import { exportCSV, exportPDF, exportXLSX } from "@/utils/exporters";
 import { format } from "date-fns";
@@ -65,8 +67,8 @@ export default function Sales() {
     });
   }, [sales, filters]);
 
-  const vendedores = Array.from(new Set(sales.map((s) => s.vendedor))).filter(Boolean);
-  const statuses = Array.from(new Set(sales.map((s) => s.status))).filter(Boolean);
+  const vendedores = Array.from(new Set(sales.map((s) => s.vendedor))).filter(Boolean) as string[];
+  const statuses = Array.from(new Set(sales.map((s) => s.status))).filter(Boolean) as string[];
 
   const onSubmit = () => {
     if (!form.id) return;
@@ -84,7 +86,7 @@ export default function Sales() {
       vendedor: form.vendedor!,
       captador: form.captador || "",
       gerente: form.gerente || "",
-      status: (form.status as any) || "Em análise",
+  status: String(form.status || "Em análise"),
       pago: Boolean(form.pago),
       createdAt: new Date().toISOString(),
     };
@@ -308,7 +310,7 @@ export default function Sales() {
             <div className="flex flex-wrap gap-3 items-end">
               <div>
                 <Label>Período</Label>
-                <Select value={filters.period} onValueChange={(v: any) => setFilters({ ...filters, period: v })}>
+                <Select value={filters.period} onValueChange={(v: "mensal" | "anual" | "custom") => setFilters({ ...filters, period: v })}>
                   <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="mensal">Mensal</SelectItem>
@@ -373,8 +375,15 @@ export default function Sales() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filtered.map((s) => (
-                    <TableRow key={s.id} className="animate-fade-in">
+                  {filtered.map((s, idx) => (
+                    <motion.tr
+                      key={s.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.1 + idx * 0.04 }}
+                      whileHover={{ scale: 1.02, backgroundColor: "#1e293b" }}
+                      className="animate-fade-in"
+                    >
                       <TableCell>{s.id}</TableCell>
                       <TableCell>{format(new Date(s.dataCompetencia), 'dd/MM/yyyy')}</TableCell>
                       <TableCell>{s.cliente}</TableCell>
@@ -387,7 +396,7 @@ export default function Sales() {
                         <Button size="sm" variant="secondary" onClick={() => { setEditingId(s.id); setForm(s); }}>Editar</Button>
                         <Button size="sm" variant="destructive" onClick={() => deleteSale(s.id)}>Excluir</Button>
                       </TableCell>
-                    </TableRow>
+                    </motion.tr>
                   ))}
                 </TableBody>
               </Table>

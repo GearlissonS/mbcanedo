@@ -1,35 +1,16 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { createClient } from '@supabase/supabase-js';
+import React, { useState, useEffect } from "react";
+import { supabase } from "./supabaseClient";
+import { ThemeContext as CoreThemeContext } from "./theme-core";
+export { useTheme } from "./theme-core";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_KEY;
-export const supabase = createClient(supabaseUrl, supabaseKey);
-
-type Theme = "light" | "dark";
-type Palette = {
-  primary: string;
-  secondary: string;
+const defaultPalette = {
+  primary: "#2563eb",
+  secondary: "#f59e42",
 };
-
-type ThemeContextType = {
-  theme: Theme;
-  palette: Palette;
-  setTheme: (t: Theme) => void;
-  setPalette: (p: Palette) => void;
-  savePreferences: () => Promise<void>;
-  loadPreferences: () => Promise<void>;
-};
-
-const defaultPalette: Palette = {
-  primary: "#2563eb", // azul
-  secondary: "#f59e42", // laranja
-};
-
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ userId: string; children: React.ReactNode }> = ({ userId, children }) => {
-  const [theme, setTheme] = useState<Theme>("light");
-  const [palette, setPalette] = useState<Palette>(defaultPalette);
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [palette, setPalette] = useState(defaultPalette);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
@@ -49,20 +30,14 @@ export const ThemeProvider: React.FC<{ userId: string; children: React.ReactNode
   const loadPreferences = async () => {
     const { data } = await supabase.from("user_preferences").select("theme,primary,secondary").eq("user_id", userId).single();
     if (data) {
-      setTheme(data.theme as Theme);
+      setTheme(data.theme as "light" | "dark");
       setPalette({ primary: data.primary, secondary: data.secondary });
     }
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, palette, setTheme, setPalette, savePreferences, loadPreferences }}>
+    <CoreThemeContext.Provider value={{ theme, palette, setTheme, setPalette, savePreferences, loadPreferences }}>
       {children}
-    </ThemeContext.Provider>
+    </CoreThemeContext.Provider>
   );
-};
-
-export const useTheme = () => {
-  const ctx = useContext(ThemeContext);
-  if (!ctx) throw new Error("useTheme must be used within ThemeProvider");
-  return ctx;
 };

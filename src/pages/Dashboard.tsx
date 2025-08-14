@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { useData } from "@/context/DataContext";
+import { motion } from "framer-motion";
+import { useData } from "@/context/data-core";
 import { useSettings } from "@/context/SettingsContext";
 import { Helmet } from "react-helmet-async";
 import { useTheme } from "@/context/ThemeContext";
@@ -24,6 +25,25 @@ function monthKey(dateStr: string) {
   return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}`;
 }
 
+type SaleItem = {
+  id: string;
+  dataCompetencia: string;
+  dataVencimento?: string;
+  cliente?: string;
+  origem?: string;
+  estilo?: string;
+  produto?: string;
+  vgv: number;
+  vgc: number;
+  tipo?: string;
+  vendedor?: string;
+  captador?: string;
+  gerente?: string;
+  status?: string;
+  pago?: boolean;
+  createdAt?: string;
+}
+
 // Dados fictícios para demonstração - REMOVER EM PRODUÇÃO
 const mockSales = [
   { id: "1", dataCompetencia: "2024-12-01", dataVencimento: "2024-12-15", cliente: "João Silva", origem: "Indicação", estilo: "Clássico", produto: "Apartamento 2Q", vgv: 450000, vgc: 22500, tipo: "Revenda", vendedor: "Ana Souza", captador: "Bruno Lima", gerente: "Carla Mendes", status: "Aprovada", pago: true, createdAt: "2024-12-01T08:00:00Z" },
@@ -37,11 +57,11 @@ const formatCurrency = (value: number) => {
   return formatCurrencyBR(value, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 };
 
-const formatTooltip = (value: any, name: string) => {
+const formatTooltip = (value: unknown, name: string) => {
   if (name === 'VGV' || name === 'VGC') {
-    return [formatCurrency(Number(value)), name];
+    return [formatCurrency(Number(value as number)), name];
   }
-  return [value, name];
+  return [String(value ?? ''), name];
 };
 
 export default function Dashboard() {
@@ -64,7 +84,7 @@ export default function Dashboard() {
   const activeSales = sales && sales.length > 0 ? sales : mockSales;
 
   const vendedores = useMemo(() => {
-    return Array.from(new Set(activeSales.map((s: any) => s.vendedor).filter(Boolean)));
+    return Array.from(new Set(activeSales.map((s: SaleItem) => s.vendedor).filter(Boolean)));
   }, [activeSales]);
 
   const filtered = useMemo(() => {
@@ -73,7 +93,7 @@ export default function Dashboard() {
     if (mode === "mensal") { s = new Date(now.getFullYear(), now.getMonth(), 1); e = new Date(now.getFullYear(), now.getMonth()+1, 0); }
     if (mode === "anual") { s = new Date(now.getFullYear(), 0, 1); e = new Date(now.getFullYear(), 11, 31); }
     if (mode === "custom" && start && end) { s = new Date(start); e = new Date(end); }
-    return activeSales.filter((x) => {
+    return activeSales.filter((x: SaleItem) => {
       const d = new Date(x.dataCompetencia);
       const inRange = s && e ? d >= s && d <= e : true;
       const vendedorOk = seller === "all" ? true : x.vendedor === seller;
@@ -87,11 +107,11 @@ export default function Dashboard() {
     if (mode === "mensal") { const m = new Date(now.getFullYear(), now.getMonth()-1, 1); s = new Date(m.getFullYear(), m.getMonth(), 1); e = new Date(m.getFullYear(), m.getMonth()+1, 0); }
     if (mode === "anual") { const y = now.getFullYear()-1; s = new Date(y, 0, 1); e = new Date(y, 11, 31); }
     if (mode === "custom") { return []; }
-    return activeSales.filter((x) => {
+    return activeSales.filter((x: SaleItem) => {
       const d = new Date(x.dataCompetencia);
       return s && e ? d >= s && d <= e : false;
     });
-  }, [activeSales, mode, start, end]);
+  }, [activeSales, mode]);
 
 // KPIs calculados
 const kpis = useMemo(() => {
@@ -104,10 +124,10 @@ const kpis = useMemo(() => {
 }, [filtered]);
 
 const prevKpis = useMemo(() => {
-  const totalVgv = prevFiltered.reduce((acc: number, s: any) => acc + s.vgv, 0);
-  const totalVgc = prevFiltered.reduce((acc: number, s: any) => acc + s.vgc, 0);
+  const totalVgv = prevFiltered.reduce((acc: number, s: SaleItem) => acc + s.vgv, 0);
+  const totalVgc = prevFiltered.reduce((acc: number, s: SaleItem) => acc + s.vgc, 0);
   const totalSales = prevFiltered.length;
-  const approvedSales = prevFiltered.filter((s: any) => s.status === "Aprovada").length;
+  const approvedSales = prevFiltered.filter((s: SaleItem) => s.status === "Aprovada").length;
   const conversionRate = totalSales > 0 ? (approvedSales / totalSales) * 100 : 0;
   return { totalVgv, totalVgc, totalSales, conversionRate };
 }, [prevFiltered]);
@@ -187,7 +207,7 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
       <div className="flex flex-wrap items-end gap-3">
         <div>
           <Label>Período</Label>
-          <Select value={mode} onValueChange={(v: any) => setMode(v)}>
+          <Select value={mode} onValueChange={(v: "mensal" | "anual" | "custom") => setMode(v)}>
             <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="mensal">Mensal</SelectItem>
@@ -235,34 +255,41 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <KPICard
-            title="VGV Total"
-            value={formatCurrency(kpis.totalVgv)}
-            subtitle="Volume Geral de Vendas"
-            icon={DollarSign}
-            trend={{ value: pct(kpis.totalVgv, prevKpis.totalVgv), label: "vs período anterior" }}
-          />
-          <KPICard
-            title="VGC Total"
-            value={formatCurrency(kpis.totalVgc)}
-            subtitle="Volume Geral de Comissão"
-            icon={TrendingUp}
-            trend={{ value: pct(kpis.totalVgc, prevKpis.totalVgc), label: "vs período anterior" }}
-          />
-          <KPICard
-            title="Vendas"
-            value={kpis.totalSales}
-            subtitle="Total de transações"
-            icon={BarChart3}
-            trend={{ value: pct(kpis.totalSales, prevKpis.totalSales), label: "vs período anterior" }}
-          />
-          <KPICard
-            title="Taxa de Conversão"
-            value={`${kpis.conversionRate.toFixed(1)}%`}
-            subtitle="Aprovadas vs Total"
-            icon={Target}
-            trend={{ value: pct(kpis.conversionRate, prevKpis.conversionRate), label: "vs período anterior" }}
-          />
+          {[{
+            title: "VGV Total",
+            value: formatCurrency(kpis.totalVgv),
+            subtitle: "Volume Geral de Vendas",
+            icon: DollarSign,
+            trend: { value: pct(kpis.totalVgv, prevKpis.totalVgv), label: "vs período anterior" }
+          }, {
+            title: "VGC Total",
+            value: formatCurrency(kpis.totalVgc),
+            subtitle: "Volume Geral de Comissão",
+            icon: TrendingUp,
+            trend: { value: pct(kpis.totalVgc, prevKpis.totalVgc), label: "vs período anterior" }
+          }, {
+            title: "Vendas",
+            value: kpis.totalSales,
+            subtitle: "Total de transações",
+            icon: BarChart3,
+            trend: { value: pct(kpis.totalSales, prevKpis.totalSales), label: "vs período anterior" }
+          }, {
+            title: "Taxa de Conversão",
+            value: `${kpis.conversionRate.toFixed(1)}%`,
+            subtitle: "Aprovadas vs Total",
+            icon: Target,
+            trend: { value: pct(kpis.conversionRate, prevKpis.conversionRate), label: "vs período anterior" }
+          }].map((props, idx) => (
+            <motion.div
+              key={props.title}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.2 + idx * 0.15 }}
+              whileHover={{ scale: 1.04, boxShadow: "0 8px 32px #0A1B4D55" }}
+            >
+              <KPICard {...props} />
+            </motion.div>
+          ))}
         </div>
       )}
 

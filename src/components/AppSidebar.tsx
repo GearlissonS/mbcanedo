@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useSettings } from "@/context/SettingsContext";
 
-const ICONS: Record<string, any> = {
+const ICONS: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
   home: Home,
   sales: ReceiptText,
   ranking: Trophy,

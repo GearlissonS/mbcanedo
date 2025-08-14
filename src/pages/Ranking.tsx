@@ -1,10 +1,12 @@
 import { useMemo, useRef, useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { useRealtimeSales } from "@/hooks/useRealtimeSales";
 import { Tooltip } from "@/components/ui/tooltip";
 import { Maximize2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useData } from "@/context/DataContext";
+import { useData } from "@/context/data-core";
 import { useSettings } from "@/context/SettingsContext";
+import { Sale } from "@/context/types";
 import { Helmet } from "react-helmet-async";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -16,7 +18,7 @@ export default function Ranking() {
   const { sales, setSales } = useData();
   // Atualização automática via Supabase Realtime
   useRealtimeSales((newSale) => {
-    setSales([...sales, newSale]);
+  setSales([...sales, newSale as unknown as Sale]);
   });
   const { settings, playRankingSound } = useSettings();
   const [period, setPeriod] = useState<"mensal" | "anual">("mensal");
@@ -46,7 +48,7 @@ export default function Ranking() {
       return arr.filter(r => r.vendedor.toLowerCase().includes(search.trim().toLowerCase()));
     }
     return arr;
-  }, [sales, period]);
+  }, [sales, period, search]);
 
   const prevOrder = useRef<string[]>([]);
   useEffect(() => {
@@ -118,7 +120,7 @@ const toView = (arr: RankItem[]): Array<RankItem & { avatar: string }> =>
           Tela Cheia
         </button>
         <Label htmlFor="periodo">Período</Label>
-        <Select value={period} onValueChange={(v: any) => setPeriod(v)}>
+  <Select value={period} onValueChange={(v: 'mensal'|'anual') => setPeriod(v)}>
           <SelectTrigger className="w-40" id="periodo" aria-label="Selecionar período"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="mensal">Mensal</SelectItem>
@@ -138,7 +140,6 @@ const toView = (arr: RankItem[]): Array<RankItem & { avatar: string }> =>
               🏆 Pódio dos Campeões
             </h1>
             <div className="flex items-end justify-center gap-8 min-h-[320px]">
-              {/* Reorder for visual impact: 2nd, 1st, 3rd */}
               {[1, 0, 2].map((position) => {
                 const r = top3[position];
                 if (!r) return null;
@@ -154,20 +155,27 @@ const toView = (arr: RankItem[]): Array<RankItem & { avatar: string }> =>
                   2: 'shadow-amber-600/30'
                 };
                 return (
-                  <div 
-                    key={r.vendedor} 
-                    className={`text-center animate-scale-in ${settings.rankingAnimation ? 'transition-all duration-300 hover:scale-105' : ''} ${highlighted === r.vendedor ? 'ring-4 ring-primary-glow' : ''}`}
+                  <motion.div
+                    key={r.vendedor}
+                    initial={{ opacity: 0, y: 40 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7, delay: position * 0.2 }}
+                    whileHover={{ scale: 1.07, boxShadow: "0 8px 32px #FFD70055" }}
+                    className={`text-center ${settings.rankingAnimation ? 'transition-all duration-300' : ''} ${highlighted === r.vendedor ? 'ring-4 ring-primary-glow' : ''}`}
                     style={{ animationDelay: `${position * 0.2}s` }}
                     aria-label={`Corretor ${r.vendedor}, posição ${position + 1}`}
                   >
                     {/* Medal */}
-                    <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br ${medalGradients[position]} shadow-lg ${glowColors[position]} mb-4 animate-pulse`}>
+                    <motion.div
+                      className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br ${medalGradients[position]} shadow-lg ${glowColors[position]} mb-4 animate-pulse`}
+                      whileHover={{ scale: 1.12 }}
+                    >
                       <span className="text-2xl font-bold text-white drop-shadow-lg">
                         {position === 0 ? '1°' : position === 1 ? '2°' : '3°'}
                       </span>
-                    </div>
+                    </motion.div>
                     {/* Podium Base */}
-                    <div className={`mx-auto ${heights[position]} w-20 bg-gradient-to-t from-primary/20 to-primary/10 rounded-t-lg border-2 border-primary/30 relative overflow-hidden`}>
+                    <div className={`mx-auto ${heights[position]} w-20 bg-gradient-to-t from-primary/20 to-primary/10 rounded-t-lg border-2 border-primary/30 relative overflow-hidden`}> 
                       <div className="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent" />
                       <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 text-xs font-bold text-primary">
                         {position + 1}º
@@ -201,7 +209,7 @@ const toView = (arr: RankItem[]): Array<RankItem & { avatar: string }> =>
                         </div>
                       )}
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>
@@ -211,8 +219,15 @@ const toView = (arr: RankItem[]): Array<RankItem & { avatar: string }> =>
           <h2 className="text-lg font-semibold mb-3">Demais corretores</h2>
           <ol className="space-y-2" aria-label="Lista de corretores">
             {others.map((r, idx) => (
-              <li key={r.vendedor} className={`flex items-center justify-between p-2 rounded-md bg-muted/40 animate-fade-in ${highlighted === r.vendedor ? 'ring-2 ring-primary-glow' : ''}`}
-                  aria-label={`Corretor ${r.vendedor}, posição ${idx + 4}`}>
+              <motion.li
+                key={r.vendedor}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 + idx * 0.08 }}
+                whileHover={{ scale: 1.03, backgroundColor: "#1e293b" }}
+                className={`flex items-center justify-between p-2 rounded-md bg-muted/40 ${highlighted === r.vendedor ? 'ring-2 ring-primary-glow' : ''}`}
+                aria-label={`Corretor ${r.vendedor}, posição ${idx + 4}`}
+              >
                 <div className="flex items-center gap-2">
                   <span className="w-6 text-sm font-semibold">#{idx + 4}</span>
                   <Tooltip>
@@ -227,7 +242,7 @@ const toView = (arr: RankItem[]): Array<RankItem & { avatar: string }> =>
                   <span className="font-medium">{r.vendedor || '—'}</span>
                 </div>
                 <span className="text-sm text-muted-foreground">{r.vgv.toLocaleString('pt-BR',{ style:'currency', currency:'BRL' })}</span>
-              </li>
+              </motion.li>
             ))}
           </ol>
         </div>

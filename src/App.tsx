@@ -5,7 +5,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import React, { Suspense, lazy } from "react";
+import { useLocation } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 const AppLayout = lazy(() => import("@/layouts/AppLayout"));
+const MainLayout = lazy(() => import("./layouts/MainLayout"));
+const Home = lazy(() => import("./pages/Home"));
 const Index = lazy(() => import("./pages/Index"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Sales = lazy(() => import("./pages/Sales"));
@@ -30,17 +34,7 @@ const App = () => (
               <Sonner />
               <BrowserRouter>
                 <Suspense fallback={<div className="flex justify-center items-center h-screen text-lg">Carregando...</div>}>
-                  <Routes>
-                    <Route element={<AppLayout />}>
-                      <Route path="/" element={<Index />} />
-                      <Route path="/sales" element={<Sales />} />
-                      <Route path="/ranking" element={<Ranking />} />
-                      <Route path="/ranking/full" element={<RankingFull />} />
-                      <Route path="/dashboard" element={<Dashboard />} />
-                      <Route path="/settings" element={<Settings />} />
-                    </Route>
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
+                  <InnerRoutes />
                 </Suspense>
               </BrowserRouter>
             </TooltipProvider>
@@ -52,3 +46,31 @@ const App = () => (
 );
 
 export default App;
+
+function InnerRoutes() {
+  const location = useLocation();
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={location.pathname}
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -20 }}
+        transition={{ duration: 0.35 }}
+        className="min-h-screen"
+      >
+        <Routes location={location} key={location.pathname}>
+          <Route element={<MainLayout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/sales" element={<Sales />} />
+            <Route path="/ranking" element={<Ranking />} />
+            <Route path="/ranking/full" element={<RankingFull />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/settings" element={<Settings />} />
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </motion.div>
+    </AnimatePresence>
+  );
+}

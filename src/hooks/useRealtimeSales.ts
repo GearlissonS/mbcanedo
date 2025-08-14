@@ -1,7 +1,16 @@
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-export function useRealtimeSales(onNewSale: (sale: any) => void) {
+type SupabaseRealtimePayload<T = Record<string, unknown>> = {
+  eventType: string;
+  schema: string;
+  table: string;
+  commit_timestamp?: string;
+  new?: T;
+  old?: T;
+};
+
+export function useRealtimeSales(onNewSale: (sale: Record<string, unknown>) => void) {
   useEffect(() => {
     // Substitua 'sales' pelo nome real da tabela de vendas
     const channel = supabase.channel('realtime-sales')
@@ -9,9 +18,9 @@ export function useRealtimeSales(onNewSale: (sale: any) => void) {
         event: '*',
         schema: 'public',
         table: 'sales',
-      }, (payload) => {
-        if (payload.eventType === 'INSERT') {
-          onNewSale(payload.new);
+      }, (payload: SupabaseRealtimePayload) => {
+        if (payload.eventType === 'INSERT' && payload.new) {
+          onNewSale(payload.new as Record<string, unknown>);
         }
       })
       .subscribe();

@@ -1,78 +1,9 @@
-import React, { createContext, useContext, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-
-export type MenuKey = "home" | "sales" | "ranking" | "dashboard" | "settings";
-
-export interface Broker {
-  id: string;
-  name: string;
-  team?: string | null;
-  avatarDataUrl?: string | null;
-  nickname: string;
-  creci: string;
-  vgv?: number;
-  tempoMedioVenda?: number;
-};
-
-export interface Settings {
-  title: string;
-  primaryHex: string;
-  accentHex: string;
-  chartColors: string[];
-  commissionRate: number; // %
-  rankingSound: "none" | "ding" | "tada";
-  rankingAnimation: boolean;
-  rankingSoundFile?: string | null;
-  rankingSoundEnabled?: boolean;
-  origins: string[];
-  styles: string[];
-  products: string[];
-  menuOrder: MenuKey[];
-  logoDataUrl?: string | null;
-  brokers?: Broker[];
-  // Theme & background customization
-  backgroundStyle: "geometric" | "none";
-  backgroundIntensity: number; // 0-100
-  showThemedIcons: boolean;
-  // ... outros campos
-}
-
-interface SettingsContextType {
-  settings: Settings;
-  setSettings: (s: Settings) => void;
-  updateSettings: (patch: Partial<Settings>) => void;
-  playRankingSound: () => void;
-  applyTheme: () => void;
-}
-
-const defaultSettings: Settings = {
-  title: "My Broker Senador Canedo",
-  primaryHex: "#0f172a", // navy
-  accentHex: "#0ea5e9",
-  chartColors: ["#0f172a", "#0ea5e9", "#1e293b", "#38bdf8", "#60a5fa"],
-  commissionRate: 5,
-  rankingSound: "ding",
-  rankingAnimation: true,
-  origins: ["Orgânico", "Indicação", "Mídia Paga"],
-  styles: ["Casa", "Apartamento", "Cobertura"],
-  products: ["Lançamento", "Revenda"],
-  menuOrder: ["home", "sales", "ranking", "dashboard", "settings"],
-  logoDataUrl: null,
-  brokers: [
-  { id: "1", name: "Ana Souza", nickname: "Ana", creci: "12345F", team: "Time A", avatarDataUrl: null },
-  { id: "2", name: "Bruno Lima", nickname: "Bruno", creci: "23456F", team: "Time A", avatarDataUrl: null },
-  { id: "3", name: "Carla Mendes", nickname: "Carla", creci: "34567F", team: "Time B", avatarDataUrl: null },
-  { id: "4", name: "Diego Rocha", nickname: "Diego", creci: "45678F", team: "Time B", avatarDataUrl: null },
-  { id: "5", name: "Eduarda Pires", nickname: "Eduarda", creci: "56789F", team: "Time C", avatarDataUrl: null },
-  ],
-  backgroundStyle: "geometric",
-  backgroundIntensity: 40,
-  showThemedIcons: true,
-  rankingSoundFile: null,
-  rankingSoundEnabled: true,
-};
-
-const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
+import { SettingsContext as CoreSettingsContext, type Settings } from "./settings-core";
+// Re-export core types and hook so older imports keep working
+export type { MenuKey, Broker } from "./settings-core";
+export { useSettings } from "./settings-core";
 
 function hexToHsl(hex: string): string {
   let r = 0, g = 0, b = 0;
@@ -88,7 +19,8 @@ function hexToHsl(hex: string): string {
   }
   r /= 255; g /= 255; b /= 255;
   const max = Math.max(r, g, b), min = Math.min(r, g, b);
-  let h = 0, s = 0, l = (max + min) / 2;
+  let h = 0, s = 0;
+  const l = (max + min) / 2;
   if (max !== min) {
     const d = max - min;
     s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
@@ -103,50 +35,84 @@ function hexToHsl(hex: string): string {
 }
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [settings, setSettings] = useLocalStorage<Settings>("mb:settings", defaultSettings);
-
-const applyTheme = () => {
-  const root = document.documentElement;
-  // Light theme (white + blue) by default
-  root.classList.remove("dark");
-  root.style.setProperty("--primary", hexToHsl(settings.primaryHex));
-  root.style.setProperty("--accent", hexToHsl(settings.accentHex));
-};
-
-  useEffect(() => {
-    applyTheme();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings.primaryHex, settings.accentHex]);
-
-  const updateSettings = (patch: Partial<Settings>) => setSettings({ ...settings, ...patch });
-
-  const playRankingSound = () => {
-    if (settings.rankingSound === "none" || typeof window === "undefined") return;
-    const AudioCtx = (window as any).AudioContext || (window as any).webkitAudioContext;
-    try {
-      const ctx = new AudioCtx();
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-      o.type = "sine";
-      const base = settings.rankingSound === "ding" ? 880 : 523.25; // A5 or C5
-      o.frequency.value = base;
-      o.connect(g);
-      g.connect(ctx.destination);
-      g.gain.setValueAtTime(0.001, ctx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
-      o.start();
-      o.stop(ctx.currentTime + 0.26);
-      setTimeout(() => ctx.close(), 400);
-    } catch {}
+  // Read and persist settings locally
+  // Keep the full implementation in this file but use the core context from settings-core
+  const defaultSettings: Settings = {
+    title: "My Broker Senador Canedo",
+    primaryHex: "#0f172a",
+    accentHex: "#0ea5e9",
+    chartColors: ["#0f172a", "#0ea5e9", "#1e293b", "#38bdf8", "#60a5fa"],
+    commissionRate: 5,
+    rankingSound: "ding",
+    rankingAnimation: true,
+    rankingSoundFile: null,
+    rankingSoundEnabled: true,
+    origins: ["Orgânico", "Indicação", "Mídia Paga"],
+    styles: ["Casa", "Apartamento", "Cobertura"],
+    products: ["Lançamento", "Revenda"],
+    menuOrder: ["home", "sales", "ranking", "dashboard", "settings"],
+    logoDataUrl: null,
+    brokers: [],
+    backgroundStyle: "geometric",
+    backgroundIntensity: 40,
+    showThemedIcons: true,
+    homeDescription: undefined,
+    homeImage: undefined,
+    theme: "light",
   };
 
-  const value: SettingsContextType = { settings, setSettings, updateSettings, playRankingSound, applyTheme };
-  return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
-};
+  const [settings, setSettings] = useLocalStorage<Settings>("mb:settings", defaultSettings);
 
-export const useSettings = () => {
-  const ctx = useContext(SettingsContext);
-  if (!ctx) throw new Error("useSettings must be used within SettingsProvider");
-  return ctx;
+  useEffect(() => {
+    // apply theme when settings change
+    const root = document.documentElement;
+    if (settings?.theme === "dark") root.classList.add("dark");
+    else root.classList.remove("dark");
+  }, [settings]);
+
+  const applyTheme = () => {
+    if (!settings) return;
+    const root = document.documentElement;
+    root.style.setProperty("--primary", settings.primaryHex || "#0f172a");
+    root.style.setProperty("--accent", settings.accentHex || "#0ea5e9");
+  };
+
+  const playRankingSound = () => {
+    // lightweight sound function kept local
+    try {
+      if (settings?.rankingSound === "none") return;
+      const maybeAudio = (window as unknown) as {
+        AudioContext?: typeof AudioContext
+        webkitAudioContext?: typeof AudioContext
+      }
+      const AudioCtor = maybeAudio.AudioContext ?? maybeAudio.webkitAudioContext
+      if (!AudioCtor) return;
+      const ctx = new AudioCtor()
+      const o = ctx.createOscillator()
+      const g = ctx.createGain()
+      o.type = "sine"
+      const base = settings?.rankingSound === "ding" ? 880 : 523.25
+      o.frequency.value = base
+      o.connect(g)
+      g.connect(ctx.destination)
+      g.gain.setValueAtTime(0.001, ctx.currentTime)
+      g.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.02)
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25)
+      o.start()
+      o.stop(ctx.currentTime + 0.26)
+      setTimeout(() => ctx.close(), 400)
+    } catch (err) {
+      console.debug("ranking sound failed", err)
+    }
+  };
+
+  const value = {
+    settings,
+    setSettings: (s: Settings) => setSettings(s),
+    updateSettings: (patch: Partial<Settings>) => setSettings({ ...(settings || defaultSettings), ...patch }),
+    playRankingSound,
+    applyTheme,
+  };
+
+  return <CoreSettingsContext.Provider value={value}>{children}</CoreSettingsContext.Provider>;
 };

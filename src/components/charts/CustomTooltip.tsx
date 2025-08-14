@@ -1,8 +1,14 @@
 import React from "react";
 
+interface TooltipPayloadItem {
+  name?: string;
+  value?: number | string;
+  color?: string;
+}
+
 interface CustomTooltipProps {
   active?: boolean;
-  payload?: any[];
+  payload?: TooltipPayloadItem[];
   label?: string;
   currency?: boolean;
 }
@@ -21,7 +27,7 @@ export function CustomTooltip({ active, payload, label, currency = false }: Cust
           <div key={i} className="flex items-center gap-2 text-xs">
             <span className="h-2 w-2 rounded-full" style={{ backgroundColor: p.color }} />
             <span className="text-muted-foreground">{p.name}:</span>
-            <span className="font-medium">{currency ? formatCurrencyBRL(Number(p.value)) : p.value}</span>
+            <span className="font-medium">{currency ? formatCurrencyBRL(Number(p.value as number)) : p.value}</span>
           </div>
         ))}
       </div>

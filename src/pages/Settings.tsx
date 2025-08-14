@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useSettings, MenuKey } from "@/context/SettingsContext";
-import { useData, Sale } from "@/context/DataContext";
+import { useData } from "@/context/data-core";
+import type { Sale } from "@/context/types";
 import { Helmet } from "react-helmet-async";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -58,7 +59,10 @@ export default function Settings() {
         const data = JSON.parse(String(reader.result));
         if (data.settings) updateSettings(data.settings);
         if (data.sales) setSales(data.sales as Sale[]);
-      } catch {}
+      } catch (err) {
+        // ignore invalid import files
+  console.debug('importJSON failed', err);
+      }
     };
     reader.readAsText(file);
   };
@@ -90,6 +94,23 @@ export default function Settings() {
                   <Label>Título da Home</Label>
                   <Input value={settings.title} onChange={(e) => updateSettings({ title: e.target.value })} />
                 </div>
+                <div>
+                  <Label>Descrição da Home</Label>
+                  <Input value={settings.homeDescription ?? ""} onChange={(e) => updateSettings({ homeDescription: e.target.value })} />
+                </div>
+                <div>
+                  <Label>Imagem da Home</Label>
+                  <Input type="file" accept="image/*" onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = () => updateSettings({ homeImage: String(reader.result) });
+                    reader.readAsDataURL(file);
+                  }} />
+                  {settings.homeImage && (
+                    <img src={settings.homeImage} alt="Home" className="mt-2 w-32 h-20 object-contain rounded-lg border" />
+                  )}
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label>Cor Primária</Label>
@@ -108,6 +129,13 @@ export default function Settings() {
                   <Label>Logo</Label>
                   <Input type="file" accept="image/*" onChange={onLogo} />
                 </div>
+                <div>
+                  <Label>Modo</Label>
+                  <select value={settings.theme ?? "light"} onChange={e => updateSettings({ theme: e.target.value as "light" | "dark" })} className="w-full border rounded px-2 py-1">
+                    <option value="light">Claro</option>
+                    <option value="dark">Escuro</option>
+                  </select>
+                </div>
                 <Button onClick={saveTheme}>Salvar Tema</Button>
               </div>
             </div>
@@ -120,7 +148,7 @@ export default function Settings() {
                   <select
                     className="w-full h-10 rounded-md border bg-background px-3"
                     value={settings.backgroundStyle || "geometric"}
-                    onChange={(e) => updateSettings({ backgroundStyle: e.target.value as any })}
+                    onChange={(e) => updateSettings({ backgroundStyle: e.target.value as "geometric" | "none" })}
                   >
                     <option value="geometric">Geométrico</option>
                     <option value="none">Nenhum</option>
@@ -205,7 +233,7 @@ export default function Settings() {
               <div className="space-y-3">
                 <div>
                   <Label>Som do Ranking</Label>
-                  <select className="w-full h-10 rounded-md border bg-background px-3" value={settings.rankingSound} onChange={(e) => updateSettings({ rankingSound: e.target.value as any })}>
+                  <select className="w-full h-10 rounded-md border bg-background px-3" value={settings.rankingSound} onChange={(e) => updateSettings({ rankingSound: e.target.value as "none" | "ding" | "tada" })}>
                     <option value="none">Nenhum</option>
                     <option value="ding">Ding</option>
                     <option value="tada">Tada</option>

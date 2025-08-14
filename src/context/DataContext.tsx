@@ -1,28 +1,9 @@
-import React, { createContext, useContext } from "react";
+import React from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useSettings } from "@/context/SettingsContext";
 import { showSuccess, showError } from "@/components/NotificationToast";
-
-export type Status = "Em análise" | "Aprovada" | "Cancelada" | string;
-
-export interface Sale {
-  id: string;
-  dataCompetencia: string; // ISO date
-  dataVencimento: string; // ISO date
-  cliente: string;
-  origem: string;
-  estilo: string;
-  produto: string;
-  vgv: number; // Valor Geral de Vendas
-  vgc: number; // Valor Geral de Comissão (default = vgv * taxa)
-  tipo: string; // Revenda | Lançamento | ...
-  vendedor: string;
-  captador: string;
-  gerente: string;
-  status: Status;
-  pago: boolean;
-  createdAt: string; // ISO
-}
+import { DataContext as CoreDataContext } from "./data-core";
+import type { Sale, Status } from "./types";
 
 interface DataContextType {
   sales: Sale[];
@@ -32,8 +13,6 @@ interface DataContextType {
   setSales: (arr: Sale[]) => void;
   recalcVgc: (vgv: number) => number;
 }
-
-const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [sales, setSales] = useLocalStorage<Sale[]>("mb:sales", []);
@@ -57,11 +36,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const recalcVgc = (vgv: number) => Number(((vgv * settings.commissionRate) / 100).toFixed(2));
 
   const value: DataContextType = { sales, addSale, updateSale, deleteSale, setSales, recalcVgc };
-  return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
+  return <CoreDataContext.Provider value={value}>{children}</CoreDataContext.Provider>;
 };
-
-export const useData = () => {
-  const ctx = useContext(DataContext);
-  if (!ctx) throw new Error("useData must be used within DataProvider");
-  return ctx;
-};
+ 

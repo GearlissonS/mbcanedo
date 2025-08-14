@@ -5,7 +5,9 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
     try {
       const item = window.localStorage.getItem(key);
       return item ? (JSON.parse(item) as T) : initialValue;
-    } catch {
+    } catch (err) {
+      // If parsing fails, fallback to initial value
+  console.debug('useLocalStorage JSON parse failed', err);
       return initialValue;
     }
   });
@@ -13,7 +15,10 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
   useEffect(() => {
     try {
       window.localStorage.setItem(key, JSON.stringify(value));
-    } catch {}
+    } catch (err) {
+      // ignore storage write errors (quota, incognito, etc.)
+  console.debug('useLocalStorage setItem failed', err);
+    }
   }, [key, value]);
 
   return [value, setValue] as const;
