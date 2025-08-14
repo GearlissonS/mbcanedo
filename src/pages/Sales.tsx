@@ -16,12 +16,14 @@ import { Separator } from "@/components/ui/separator";
 import { exportCSV, exportPDF, exportXLSX } from "@/utils/exporters";
 import { format } from "date-fns";
 import { formatCurrencyBR } from "@/lib/utils";
+import BackButton from "@/components/BackButton";
 
 function formatMoney(n: number) {
   return (n ?? 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 export default function Sales() {
+  // ...existing code...
   const { sales, addSale, updateSale, deleteSale, recalcVgc } = useData();
   const { settings } = useSettings();
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -151,6 +153,7 @@ export default function Sales() {
             <h1 id="form-vendas" className="text-2xl font-semibold mb-2">Cadastro de Vendas</h1>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-3 bg-card p-4 rounded-lg border shadow-sm">
               <div>
+                <BackButton />
                 <Label htmlFor="id">ID</Label>
                 <Input id="id" value={form.id || ""} onChange={(e) => setForm({ ...form, id: e.target.value })} />
               </div>

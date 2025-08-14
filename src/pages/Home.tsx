@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Cloud, Building2, Users, BarChart3, LogIn, List } from "lucide-react";
 import { useSettings } from "@/context/SettingsContext";
+import BackButton from "@/components/BackButton";
 // import de fonte removido pois não está instalado
 
 const cards = [
@@ -30,10 +31,19 @@ const cards = [
 ];
 
 export default function Home() {
+  // ...existing code...
   const { settings } = useSettings();
   const bgImage = settings.homeImage;
-  return (
-    <div
+    return (
+      <div
+        className="min-h-screen w-full flex flex-col items-center justify-center relative overflow-hidden"
+        style={{
+          background: bgImage
+            ? `url(${bgImage}) center/cover no-repeat, linear-gradient(135deg, #0f172a 70%, #f8fafc 100%)`
+            : "linear-gradient(135deg, #0f172a 70%, #f8fafc 100%)",
+        }}
+      >
+        <BackButton />
       className="min-h-screen w-full flex flex-col items-center justify-center relative overflow-hidden"
       style={{
         background: bgImage

@@ -20,10 +20,12 @@ import {
 } from "recharts";
 import { CustomTooltip } from "@/components/charts/CustomTooltip";
 import { formatCurrencyBR } from "@/lib/utils";
+import BackButton from "@/components/BackButton";
 
 function monthKey(dateStr: string) {
   const d = new Date(dateStr);
   return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}`;
+}
 
 
 type SaleItem = {
@@ -64,24 +66,21 @@ const formatTooltip = (value: unknown, name: string) => {
   }
   return [String(value ?? ''), name];
 };
-
+export default function Dashboard() {
+  // ...existing code...
   // Theme/paleta
   const { theme, palette, setTheme, setPalette, savePreferences } = useTheme();
-  const [previewPalette, setPreviewPalette] = useState(palette);
-  const [previewTheme, setPreviewTheme] = useState(theme);
   const [saving, setSaving] = useState(false);
-  const handlePaletteChange = (patch) => setPreviewPalette(prev => ({ ...prev, ...patch }));
-  const handleThemeChange = (t) => setPreviewTheme(t);
   const quickPalettes = [
     { primary: "#2563eb", secondary: "#0ea5e9" },
     { primary: "#22c55e", secondary: "#0ea5e9" },
     { primary: "#a21caf", secondary: "#6366f1" },
   ];
-  const handleQuickPalette = (p) => setPreviewPalette(p);
+  const handlePaletteChange = (patch) => setPalette({ ...palette, ...patch });
+  const handleThemeChange = (t) => setTheme(t);
+  const handleQuickPalette = (p) => setPalette(p);
   const handleSave = async () => {
     setSaving(true);
-    setPalette(previewPalette);
-    setTheme(previewTheme);
     await savePreferences();
     setSaving(false);
   };
@@ -125,26 +124,26 @@ const formatTooltip = (value: unknown, name: string) => {
     });
   }, [activeSales, mode]);
 
-// KPIs calculados
-const kpis = useMemo(() => {
-  const totalVgv = filtered.reduce((acc, s) => acc + s.vgv, 0);
-  const totalVgc = filtered.reduce((acc, s) => acc + s.vgc, 0);
-  const totalSales = filtered.length;
-  const approvedSales = filtered.filter(s => s.status === "Aprovada").length;
-  const conversionRate = totalSales > 0 ? (approvedSales / totalSales) * 100 : 0;
-  return { totalVgv, totalVgc, totalSales, conversionRate };
-}, [filtered]);
+  // KPIs calculados
+  const kpis = useMemo(() => {
+    const totalVgv = filtered.reduce((acc, s) => acc + s.vgv, 0);
+    const totalVgc = filtered.reduce((acc, s) => acc + s.vgc, 0);
+    const totalSales = filtered.length;
+    const approvedSales = filtered.filter(s => s.status === "Aprovada").length;
+    const conversionRate = totalSales > 0 ? (approvedSales / totalSales) * 100 : 0;
+    return { totalVgv, totalVgc, totalSales, conversionRate };
+  }, [filtered]);
 
-const prevKpis = useMemo(() => {
-  const totalVgv = prevFiltered.reduce((acc: number, s: SaleItem) => acc + s.vgv, 0);
-  const totalVgc = prevFiltered.reduce((acc: number, s: SaleItem) => acc + s.vgc, 0);
-  const totalSales = prevFiltered.length;
-  const approvedSales = prevFiltered.filter((s: SaleItem) => s.status === "Aprovada").length;
-  const conversionRate = totalSales > 0 ? (approvedSales / totalSales) * 100 : 0;
-  return { totalVgv, totalVgc, totalSales, conversionRate };
-}, [prevFiltered]);
+  const prevKpis = useMemo(() => {
+    const totalVgv = prevFiltered.reduce((acc: number, s: SaleItem) => acc + s.vgv, 0);
+    const totalVgc = prevFiltered.reduce((acc: number, s: SaleItem) => acc + s.vgc, 0);
+    const totalSales = prevFiltered.length;
+    const approvedSales = prevFiltered.filter((s: SaleItem) => s.status === "Aprovada").length;
+    const conversionRate = totalSales > 0 ? (approvedSales / totalSales) * 100 : 0;
+    return { totalVgv, totalVgc, totalSales, conversionRate };
+  }, [prevFiltered]);
 
-const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) / prev) * 100).toFixed(1)) : 0);
+  const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) / prev) * 100).toFixed(1)) : 0);
 
   const monthly = useMemo(() => {
     const map: Record<string, { vgv: number; vgc: number }> = {};
@@ -154,7 +153,9 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
       map[k].vgv += s.vgv;
       map[k].vgc += s.vgc;
     });
-            return Object.entries(map).sort(([a],[b]) => a.localeCompare(b)).map(([k,v]) => ({ mes: k, VGV: Number(v.vgv.toFixed(2)), VGC: Number(v.vgc.toFixed(2)) }));
+    return Object.entries(map)
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([k, v]) => ({ mes: k, VGV: Number(v.vgv.toFixed(2)), VGC: Number(v.vgc.toFixed(2)) }));
   }, [filtered]);
 
   const ranking = useMemo(() => {
@@ -186,47 +187,33 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
 
   return (
     <div className="space-y-6">
+      <BackButton />
       <Helmet>
         <title>{settings.title} — Dashboard</title>
         <meta name="description" content="Gráficos (VGV, VGC, Ranking, Tipos, Origem) com filtros por período e corretor." />
       </Helmet>
 
       {/* Card de Personalização do Dashboard */}
-      <motion.div layout className="mb-6 p-6 rounded-2xl shadow-xl bg-white/80 dark:bg-slate-900/80 flex flex-col gap-4 items-center max-w-3xl mx-auto border border-primary/20">
-        <h2 className="font-bold text-lg mb-2 flex items-center gap-2"><Palette size={20}/> Personalização do Dashboard</h2>
-        <div className="flex flex-wrap gap-4 items-center justify-center w-full">
-          <div className="flex gap-2 items-center">
-            <button
-              className={`px-3 py-2 rounded-lg font-semibold flex items-center gap-1 transition ${previewTheme === 'light' ? 'bg-primary text-white' : 'bg-slate-700 text-white'}`}
-              onClick={() => handleThemeChange('light')}
-            ><Sun size={18}/> Claro</button>
-            <button
-              className={`px-3 py-2 rounded-lg font-semibold flex items-center gap-1 transition ${previewTheme === 'dark' ? 'bg-primary text-white' : 'bg-slate-700 text-white'}`}
-              onClick={() => handleThemeChange('dark')}
-            ><Moon size={18}/> Escuro</button>
-          </div>
-          <div className="flex flex-col gap-1 items-center">
-            <label className="text-xs font-medium">Cor Primária</label>
-            <input type="color" value={previewPalette.primary} onChange={e => handlePaletteChange({ primary: e.target.value })} className="w-10 h-10 rounded border" />
-          </div>
-          <div className="flex flex-col gap-1 items-center">
-            <label className="text-xs font-medium">Cor Secundária</label>
-            <input type="color" value={previewPalette.secondary} onChange={e => handlePaletteChange({ secondary: e.target.value })} className="w-10 h-10 rounded border" />
-          </div>
-          <div className="flex flex-col gap-1 items-center">
-            <label className="text-xs font-medium">Paletas rápidas</label>
-            <div className="flex gap-2">
-              {quickPalettes.map((p, i) => (
-                <button key={i} className="w-8 h-8 rounded-full border-2 border-white shadow" style={{background: `linear-gradient(135deg, ${p.primary}, ${p.secondary})`}} onClick={() => handleQuickPalette(p)} />
-              ))}
-            </div>
-          </div>
-          <button
-            className="px-3 py-2 rounded-lg bg-green-600 text-white font-semibold flex items-center gap-1"
-            onClick={handleSave}
-            disabled={saving}
-          >💾 Salvar</button>
-        </div>
+      <motion.div layout className="mb-2 px-2 py-1 rounded-lg shadow bg-white/70 dark:bg-slate-900/70 flex flex-wrap gap-2 items-center justify-center max-w-md mx-auto border border-primary/10" style={{opacity:0.85}}>
+        <Palette size={18} className="mr-2 opacity-60" />
+        <button
+          className={`px-2 py-1 rounded font-semibold flex items-center gap-1 transition text-xs ${theme === 'light' ? 'bg-primary text-white' : 'bg-slate-700 text-white'}`}
+          onClick={() => handleThemeChange('light')}
+        ><Sun size={14}/> Claro</button>
+        <button
+          className={`px-2 py-1 rounded font-semibold flex items-center gap-1 transition text-xs ${theme === 'dark' ? 'bg-primary text-white' : 'bg-slate-700 text-white'}`}
+          onClick={() => handleThemeChange('dark')}
+        ><Moon size={14}/> Escuro</button>
+        <input type="color" value={palette.primary} onChange={e => handlePaletteChange({ primary: e.target.value })} className="w-7 h-7 rounded border" title="Cor Primária" />
+        <input type="color" value={palette.secondary} onChange={e => handlePaletteChange({ secondary: e.target.value })} className="w-7 h-7 rounded border" title="Cor Secundária" />
+        {quickPalettes.map((p, i) => (
+          <button key={i} className="w-6 h-6 rounded-full border-2 border-white shadow" style={{background: `linear-gradient(135deg, ${p.primary}, ${p.secondary})`}} onClick={() => handleQuickPalette(p)} title="Paleta rápida" />
+        ))}
+        <button
+          className="px-2 py-1 rounded bg-green-600 text-white font-semibold flex items-center gap-1 text-xs"
+          onClick={handleSave}
+          disabled={saving}
+        >Salvar</button>
       </motion.div>
 
       {/* Barra de filtros com ícones */}
@@ -234,7 +221,7 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
         <div className="flex items-center gap-2">
           <CalendarDays size={18} className="text-primary" />
           <Label className="mr-1">Período</Label>
-          <Select value={mode} onValueChange={(v) => setMode(v)}>
+          <Select value={mode} onValueChange={(v: "mensal" | "anual" | "custom") => setMode(v)}>
             <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="mensal">Mensal</SelectItem>
@@ -357,8 +344,8 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
                 <Bar dataKey="VGV" fill={`url(#vgvGradient)`} radius={[10,10,0,0]} isAnimationActive={true} animationDuration={1200} />
                 <defs>
                   <linearGradient id="vgvGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={previewPalette.primary} />
-                    <stop offset="100%" stopColor={previewPalette.secondary} />
+                    <stop offset="0%" stopColor={palette.primary} />
+                    <stop offset="100%" stopColor={palette.secondary} />
                   </linearGradient>
                 </defs>
               </BarChart>
@@ -377,8 +364,8 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
                 <Bar dataKey="VGC" fill={`url(#vgcGradient)`} radius={[10,10,0,0]} isAnimationActive={true} animationDuration={1200} />
                 <defs>
                   <linearGradient id="vgcGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={previewPalette.secondary} />
-                    <stop offset="100%" stopColor={previewPalette.primary} />
+                    <stop offset="0%" stopColor={palette.secondary} />
+                    <stop offset="100%" stopColor={palette.primary} />
                   </linearGradient>
                 </defs>
               </BarChart>
@@ -417,7 +404,7 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
                   <Tooltip content={<CustomTooltip currency />} />
                   <Pie data={tipoData} dataKey="value" nameKey="name" outerRadius={80} label isAnimationActive={true} animationDuration={1200} cornerRadius={10}>
                     {tipoData.map((_, i) => (
-                      <Cell key={i} fill={i % 2 === 0 ? previewPalette.primary : previewPalette.secondary} />
+                      <Cell key={i} fill={i % 2 === 0 ? palette.primary : palette.secondary} />
                     ))}
                   </Pie>
                 </PieChart>
@@ -432,7 +419,7 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
                   <Tooltip content={<CustomTooltip currency />} />
                   <Pie data={origemData} dataKey="value" nameKey="name" outerRadius={80} label isAnimationActive={true} animationDuration={1200} cornerRadius={10}>
                     {origemData.map((_, i) => (
-                      <Cell key={i} fill={i % 2 === 0 ? previewPalette.secondary : previewPalette.primary} />
+                      <Cell key={i} fill={i % 2 === 0 ? palette.secondary : palette.primary} />
                     ))}
                   </Pie>
                 </PieChart>
@@ -446,7 +433,7 @@ const pct = (curr: number, prev: number) => (prev > 0 ? Number((((curr - prev) /
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie data={gaugeData} dataKey="value" nameKey="name" innerRadius={60} outerRadius={90} isAnimationActive={true} animationDuration={1200} cornerRadius={10}>
-                  <Cell fill={previewPalette.secondary} />
+                  <Cell fill={palette.secondary} />
                   <Cell fill="#e5e7eb" />
                 </Pie>
               </PieChart>

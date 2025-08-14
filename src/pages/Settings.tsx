@@ -9,8 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BrokersSection from "@/components/settings/BrokersSection";
+import BackButton from "@/components/BackButton";
 
 export default function Settings() {
+  // ...existing code...
   const { settings, updateSettings, applyTheme } = useSettings();
   const { sales, setSales } = useData();
 
@@ -106,6 +108,7 @@ export default function Settings() {
               <h2 className="font-semibold mb-3">Aparência</h2>
               <div className="space-y-3">
                 <div>
+                  <BackButton />
                   <Label>Título da Home</Label>
                   <Input value={previewSettings.title} onChange={(e) => handleChange({ title: e.target.value })} />
                 </div>

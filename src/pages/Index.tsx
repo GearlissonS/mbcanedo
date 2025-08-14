@@ -3,8 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Helmet } from "react-helmet-async";
 import { useSettings } from "@/context/SettingsContext";
 import { Building2, Home as HomeIcon, Handshake, TrendingUp, KeyRound } from "lucide-react";
+import BackButton from "@/components/BackButton";
 
 const Index = () => {
+  // ...existing code...
   const { settings } = useSettings();
   const jsonLd = {
     "@context": "https://schema.org",
@@ -14,6 +16,7 @@ const Index = () => {
   } as const;
   return (
     <div className="min-h-[calc(100vh-56px)] grid place-items-center bg-gradient-to-b from-background to-muted/40 animate-fade-in">
+      <BackButton />
       <Helmet>
         <title>{settings.title} — Gestão de Vendas Imobiliárias</title>
         <meta
