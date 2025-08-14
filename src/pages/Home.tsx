@@ -34,16 +34,8 @@ export default function Home() {
   // ...existing code...
   const { settings } = useSettings();
   const bgImage = settings.homeImage;
-    return (
-      <div
-        className="min-h-screen w-full flex flex-col items-center justify-center relative overflow-hidden"
-        style={{
-          background: bgImage
-            ? `url(${bgImage}) center/cover no-repeat, linear-gradient(135deg, #0f172a 70%, #f8fafc 100%)`
-            : "linear-gradient(135deg, #0f172a 70%, #f8fafc 100%)",
-        }}
-      >
-        <BackButton />
+  return (
+    <div
       className="min-h-screen w-full flex flex-col items-center justify-center relative overflow-hidden"
       style={{
         background: bgImage
@@ -51,6 +43,7 @@ export default function Home() {
           : "linear-gradient(135deg, #0f172a 70%, #f8fafc 100%)",
       }}
     >
+      <BackButton />
       {/* Overlay para legibilidade */}
       <div className="absolute inset-0 z-0 pointer-events-none" style={{background: "linear-gradient(120deg, #0f172a88 60%, #f8fafc44 100%)", backdropFilter: "blur(8px)"}} />
       {/* Elementos decorativos animados tipo bokeh */}
