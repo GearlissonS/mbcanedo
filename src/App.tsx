@@ -34,10 +34,6 @@ const App = () => (
               <Sonner />
               <BrowserRouter 
                 basename="/mbcanedo"
-                future={{ 
-                  v7_startTransition: true, 
-                  v7_relativeSplatPath: true 
-                }}
               >
                 <Suspense fallback={<div className="flex justify-center items-center h-screen text-lg">Carregando...</div>}>
                   <InnerRoutes />
