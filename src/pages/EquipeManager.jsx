@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/context/supabaseClient";
 
 export default function EquipeManager() {
   const [equipes, setEquipes] = useState([]);

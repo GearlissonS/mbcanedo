@@ -51,7 +51,8 @@ function InnerRoutes() {
   const location = useLocation();
   const KanbanVendas = React.lazy(() => import("./pages/KanbanVendas/KanbanVendas"));
   const MetasPage = React.lazy(() => import("./pages/MetasPage"));
-  const ConfigCorretor = React.lazy(() => import("./pages/ConfigCorretor"));
+  // Página de corretores removida
+  const Metas = React.lazy(() => import("./pages/Metas"));
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -71,8 +72,8 @@ function InnerRoutes() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/kanban-vendas" element={<KanbanVendas />} />
-            <Route path="/cadastro-de-corretores" element={<MetasPage />} />
-            <Route path="/configuracoes" element={<ConfigCorretor />} />
+                <Route path="/cadastro-metas" element={<Metas />} />
+            {/* Página de corretores removida */}
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
