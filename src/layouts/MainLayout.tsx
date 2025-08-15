@@ -8,7 +8,7 @@ const menu = [
   { label: "Início", path: "/" },
   { label: "Dashboard", path: "/dashboard" },
   { label: "Ranking de Corretores", path: "/ranking" },
-  { label: "Relatórios", path: "/relatorios" },
+  { label: "Kanban de Vendas", path: "/kanban-vendas" },
   { label: "Cadastro de Corretores", path: "/corretores" },
   { label: "Configurações", path: "/settings" },
 ];

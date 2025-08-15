@@ -49,6 +49,7 @@ export default App;
 
 function InnerRoutes() {
   const location = useLocation();
+  const KanbanVendas = React.lazy(() => import("./pages/KanbanVendas/KanbanVendas"));
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -60,13 +61,14 @@ function InnerRoutes() {
         className="min-h-screen"
       >
         <Routes location={location} key={location.pathname}>
-          <Route element={<MainLayout />}>
+          <Route element={<MainLayout />}> 
             <Route path="/" element={<Home />} />
             <Route path="/sales" element={<Sales />} />
             <Route path="/ranking" element={<Ranking />} />
             <Route path="/ranking/full" element={<RankingFull />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/kanban-vendas" element={<KanbanVendas />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
