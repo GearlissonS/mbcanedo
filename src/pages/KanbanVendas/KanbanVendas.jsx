@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './KanbanVendas.css';
+import Modal from './Modal';
 
 // Dummy API fetch function (replace with real API)
 const fetchSales = async () => {
@@ -39,6 +40,14 @@ const KanbanVendas = () => {
   const [cards, setCards] = useState([]);
   const [filtroCorretor, setFiltroCorretor] = useState('');
   const [busca, setBusca] = useState('');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [form, setForm] = useState({
+    cliente: '',
+    imovel: '',
+    vgv: '',
+    vgc: '',
+    observacao: '',
+  });
 
   useEffect(() => {
     fetchSales().then(setCards);
@@ -85,7 +94,7 @@ const KanbanVendas = () => {
             <option key={corretor} value={corretor}>{corretor}</option>
           ))}
         </select>
-        <button className="nova-venda-btn" onClick={addCard}>+ Nova Venda</button>
+        <button className="nova-venda-btn" onClick={() => setModalOpen(true)}>+ Nova Venda</button>
       </div>
       <div className="kanban-board">
         {etapas.map(etapa => {
@@ -139,6 +148,73 @@ const KanbanVendas = () => {
           );
         })}
       </div>
+      {modalOpen && (
+        <Modal onClose={() => setModalOpen(false)}>
+          <form
+            className="modal-form animate-modal"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const payload = {
+                ...form,
+                etapa: 'Aprovação',
+                statusAprovacao: 'pendente',
+                dataCriacao: new Date().toISOString().slice(0, 10),
+              };
+              try {
+                const res = await axios.post('/kanban', payload);
+                setCards((prev) => [...prev, res.data]);
+                setModalOpen(false);
+                setForm({ cliente: '', imovel: '', vgv: '', vgc: '', observacao: '' });
+              } catch (err) {
+                alert('Erro ao salvar venda.');
+              }
+            }}
+          >
+            <h2 className="mb-2 text-lg font-bold">Nova Venda</h2>
+            <input
+              required
+              placeholder="Cliente"
+              value={form.cliente}
+              onChange={e => setForm(f => ({ ...f, cliente: e.target.value }))}
+              className="input-rounded"
+            />
+            <input
+              required
+              placeholder="Imóvel"
+              value={form.imovel}
+              onChange={e => setForm(f => ({ ...f, imovel: e.target.value }))}
+              className="input-rounded"
+            />
+            <input
+              required
+              type="number"
+              placeholder="VGV"
+              value={form.vgv}
+              onChange={e => setForm(f => ({ ...f, vgv: e.target.value }))}
+              className="input-rounded"
+            />
+            <input
+              required
+              type="number"
+              placeholder="VGC"
+              value={form.vgc}
+              onChange={e => setForm(f => ({ ...f, vgc: e.target.value }))}
+              className="input-rounded"
+            />
+            <textarea
+              placeholder="Observação"
+              value={form.observacao}
+              onChange={e => setForm(f => ({ ...f, observacao: e.target.value }))}
+              className="input-rounded"
+              rows={3}
+            />
+            <div className="flex gap-2 mt-2">
+              <button type="submit" className="nova-venda-btn">Salvar</button>
+              <button type="button" className="nova-venda-btn bg-muted text-foreground" onClick={() => setModalOpen(false)}>Cancelar</button>
+            </div>
+          </form>
+        </Modal>
+      )}
     </div>
   );
 };
