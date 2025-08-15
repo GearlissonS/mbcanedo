@@ -58,6 +58,7 @@ const mockSales = [
 ];
 import { useSettings } from "@/context/SettingsContext";
 import { Label } from "@/components/ui/label";
+import EquipeSelect from "./EquipeSelect";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -191,12 +192,7 @@ export default function BrokersSection() {
         </div>
         <div className="md:col-span-1">
           <Label>Equipe</Label>
-          <select {...register("team")} className="w-full border rounded px-2 py-1">
-            <option value="">Selecione</option>
-            <option value="Time A">Time A</option>
-            <option value="Time B">Time B</option>
-            <option value="Time C">Time C</option>
-          </select>
+          <EquipeSelect {...register("team")} />
           {errors.team && <span className="text-xs text-red-500">{errors.team.message}</span>}
         </div>
         <div className="md:col-span-1">

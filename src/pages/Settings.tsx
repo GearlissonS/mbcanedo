@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import EquipeManager from "./EquipeManager";
 import { useSettings, MenuKey } from "@/context/SettingsContext";
 import { useData } from "@/context/data-core";
 import type { Sale } from "@/context/types";
@@ -319,6 +320,12 @@ export default function Settings() {
                 <input type="file" accept="application/json" onChange={importJSON} className="hidden" />
               </Label>
             </div>
+          </div>
+
+          {/* Cadastro e seleção dinâmica de equipes */}
+          <div className="p-4 border rounded-lg bg-card mt-6">
+            <h2 className="font-semibold mb-3">Equipes</h2>
+            <EquipeManager />
           </div>
         </TabsContent>
       </Tabs>
