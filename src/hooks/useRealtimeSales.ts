@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/context/supabaseClient";
 
 type SupabaseRealtimePayload<T = Record<string, unknown>> = {
   eventType: string;
