@@ -19,19 +19,32 @@ export default function ConfigCorretor() {
 
   // Buscar equipes cadastradas
   async function carregarEquipes() {
-    const { data, error } = await supabase.from("equipes").select("*").order("nome");
-    if (!error) setEquipes(data);
+    try {
+      const { data, error } = await supabase.from("equipes").select("*").order("nome");
+      if (error) {
+        console.error("Erro ao carregar equipes:", error);
+        return;
+      }
+      setEquipes(data || []);
+    } catch (err) {
+      console.error("Erro na requisição para carregar equipes:", err);
+    }
   }
 
   // Adicionar nova equipe
   async function adicionarEquipe() {
     if (!novaEquipe.trim()) return;
-    const { error } = await supabase.from("equipes").insert([{ nome: novaEquipe }]);
-    if (!error) {
+    
+    try {
+      const { error } = await supabase.from("equipes").insert([{ nome: novaEquipe }]);
+      if (error) {
+        console.error("Erro ao adicionar equipe:", error);
+        return;
+      }
       setNovaEquipe("");
-      carregarEquipes();
-    } else {
-      console.error(error);
+      await carregarEquipes();
+    } catch (err) {
+      console.error("Erro na requisição para adicionar equipe:", err);
     }
   }
 

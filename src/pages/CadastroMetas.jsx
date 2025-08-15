@@ -12,29 +12,63 @@ export default function CadastroMetas() {
   }, []);
 
   async function carregarDados() {
-    const { data: eq } = await supabase.from("equipes").select("*");
-    setEquipes(eq || []);
-    const { data: cor } = await supabase.from("corretores").select("*");
-    setCorretores(cor || []);
+    try {
+      const { data: eq, error: equipeError } = await supabase.from("equipes").select("*");
+      if (equipeError) {
+        console.error("Erro ao carregar equipes:", equipeError);
+      } else {
+        setEquipes(eq || []);
+      }
+      
+      const { data: cor, error: corretorError } = await supabase.from("corretores").select("*");
+      if (corretorError) {
+        console.error("Erro ao carregar corretores:", corretorError);
+      } else {
+        setCorretores(cor || []);
+      }
+    } catch (err) {
+      console.error("Erro na requisição para carregar dados:", err);
+    }
   }
 
   async function salvarMetas() {
-    // Atualiza metas das equipes
-    for (const equipe of equipes) {
-      const valor = metaEquipe[equipe.id];
-      if (valor !== undefined) {
-        await supabase.from("equipes").update({ meta_equipe: valor }).eq("id", equipe.id);
+    try {
+      let hasError = false;
+      
+      // Atualiza metas das equipes
+      for (const equipe of equipes) {
+        const valor = metaEquipe[equipe.id];
+        if (valor !== undefined) {
+          const { error } = await supabase.from("equipes").update({ meta_equipe: valor }).eq("id", equipe.id);
+          if (error) {
+            console.error(`Erro ao salvar meta da equipe ${equipe.nome}:`, error);
+            hasError = true;
+          }
+        }
       }
-    }
-    // Atualiza metas dos corretores
-    for (const corretor of corretores) {
-      const valor = metaCorretor[corretor.id];
-      if (valor !== undefined) {
-        await supabase.from("corretores").update({ meta_individual: valor }).eq("id", corretor.id);
+      
+      // Atualiza metas dos corretores
+      for (const corretor of corretores) {
+        const valor = metaCorretor[corretor.id];
+        if (valor !== undefined) {
+          const { error } = await supabase.from("corretores").update({ meta_individual: valor }).eq("id", corretor.id);
+          if (error) {
+            console.error(`Erro ao salvar meta do corretor ${corretor.nome}:`, error);
+            hasError = true;
+          }
+        }
       }
+      
+      if (!hasError) {
+        await carregarDados();
+        alert("Metas salvas com sucesso!");
+      } else {
+        alert("Houve alguns erros ao salvar as metas. Verifique o console para mais detalhes.");
+      }
+    } catch (err) {
+      console.error("Erro na requisição para salvar metas:", err);
+      alert("Erro inesperado ao salvar metas. Verifique o console para mais detalhes.");
     }
-    carregarDados();
-    alert("Metas salvas com sucesso!");
   }
 
   return (
