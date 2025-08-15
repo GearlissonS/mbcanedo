@@ -152,22 +152,24 @@ const KanbanVendas = () => {
         <Modal onClose={() => setModalOpen(false)}>
           <form
             className="modal-form animate-modal"
-            onSubmit={async (e) => {
+            onSubmit={(e) => {
               e.preventDefault();
-              const payload = {
-                ...form,
+              const now = new Date();
+              const newCard = {
+                id: Date.now(),
+                cliente: form.cliente,
+                imovel: form.imovel,
+                corretor: '',
+                valor: Number(form.vgv) || 0,
                 etapa: 'Aprovação',
-                statusAprovacao: 'pendente',
-                dataCriacao: new Date().toISOString().slice(0, 10),
+                dataEntrada: now.toISOString().slice(0, 10),
+                status: 'Pendente',
+                contato: { whatsapp: '', telefone: '', email: '' },
+                observacao: form.observacao || '',
               };
-              try {
-                const res = await axios.post('/kanban', payload);
-                setCards((prev) => [...prev, res.data]);
-                setModalOpen(false);
-                setForm({ cliente: '', imovel: '', vgv: '', vgc: '', observacao: '' });
-              } catch (err) {
-                alert('Erro ao salvar venda.');
-              }
+              setCards((prev) => [...prev, newCard]);
+              setModalOpen(false);
+              setForm({ cliente: '', imovel: '', vgv: '', vgc: '', observacao: '' });
             }}
           >
             <h2 className="mb-2 text-lg font-bold">Nova Venda</h2>
