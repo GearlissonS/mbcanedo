@@ -1,5 +1,5 @@
 // Serviço CRUD de corretores, pronto para integração com Supabase
-import { supabase } from '@/context/ThemeContext';
+import { supabase } from '@/context/supabaseClient';
 import { Broker } from '@/context/SettingsContext';
 
 export async function getBrokers(): Promise<Broker[]> {

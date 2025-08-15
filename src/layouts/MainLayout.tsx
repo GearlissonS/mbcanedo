@@ -17,7 +17,7 @@ export default function MainLayout() {
   const { settings } = useSettings();
   const location = useLocation();
   // Mock usuário logado
-  const user = { name: "João Silva", avatar: "/placeholder.svg" };
+  const user = { name: "João Silva", avatar: `${import.meta.env.BASE_URL}placeholder.svg` };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#050B2E] to-[#0A1B4D] flex flex-col">
@@ -30,7 +30,7 @@ export default function MainLayout() {
       >
         <div className="flex items-center gap-4">
           <motion.img
-            src={settings.logoDataUrl || "/favicon.ico"}
+            src={settings.logoDataUrl || `${import.meta.env.BASE_URL}favicon.ico`}
             alt="Logo"
             className="h-8 w-8 rounded-full"
             initial={{ scale: 0.8, opacity: 0 }}

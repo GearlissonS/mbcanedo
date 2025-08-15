@@ -19,7 +19,7 @@ const NotFound = () => {
       <Helmet>
         <title>Página não encontrada — {location.pathname}</title>
         <meta name="description" content="Erro 404 - Página não encontrada" />
-        <link rel="canonical" href="/404" />
+  <link rel="canonical" href={`${import.meta.env.BASE_URL}404`} />
       </Helmet>
       <GeometricBackground />
       <section className="text-center max-w-xl px-4">

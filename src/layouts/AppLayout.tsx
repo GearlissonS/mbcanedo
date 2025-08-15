@@ -15,7 +15,7 @@ export default function AppLayout() {
       <Helmet>
         <title>{settings.title} — Gestão de Vendas Imobiliárias</title>
         <meta name="description" content="Sistema moderno para gestão de vendas imobiliárias com ranking, vendas e dashboard." />
-        <link rel="canonical" href="/" />
+  <link rel="canonical" href={import.meta.env.BASE_URL} />
       </Helmet>
 
       <AppSidebar />
