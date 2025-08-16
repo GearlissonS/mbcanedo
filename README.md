@@ -194,3 +194,21 @@ Observações
 - O client Supabase já está configurado em `src/context/supabaseClient.ts` e usa `VITE_SUPABASE_KEY` ou `VITE_SUPABASE_ANON_KEY`.
 - Há migrações complementares em `supabase/migrations` (como criação inicial de `equipes`).
 - Se quiser persistir corretores e vendas, habilite as tabelas `brokers` e `vendas` (já no schema) e ajuste a UI conforme necessidade.
+
+### 🧰 Solução de problemas (401 Unauthorized / políticas)
+
+Se aparecer 401 ao inserir em `equipes`:
+
+1) Limpe políticas conflitantes e aplique a correta (modo demo):
+	- SQL Editor:
+	```sql
+	\i supabase/policies/reset_equipes_policies.sql
+	\i supabase/policies/demo_equipes.sql
+	```
+	Ou rode a migração `supabase/migrations/20250816_fix_equipes_policy.sql`.
+
+2) No Studio, não cole `create policy ...` nos campos Using/Check; eles aceitam só expressões. Use `true` em ambos.
+
+3) Garanta que os Secrets do GitHub (Actions) estejam definidos:
+	- `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.
+
