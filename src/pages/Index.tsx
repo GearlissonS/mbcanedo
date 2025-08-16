@@ -97,13 +97,16 @@ const Index = () => {
                   transition={{ duration: 0.6, delay: 0.1 }}
                   className="relative mx-auto w-[20rem] sm:w-[22rem] md:w-[24rem] aspect-[4/3] rounded-2xl border border-white/10 bg-white/10 dark:bg-black/20 shadow-2xl backdrop-blur-lg overflow-hidden"
                 >
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-white/5 to-white/10 dark:via-black/10 dark:to-black/20" aria-hidden />
                   <img
                     src={settings.homeImage}
                     alt="Ilustração principal"
-                    className="w-full h-full object-contain opacity-80 mix-blend-lighten"
+                    className="w-full h-full object-contain opacity-75 mix-blend-lighten"
                     style={{
-                      WebkitMaskImage: "linear-gradient(180deg, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%)",
-                      maskImage: "linear-gradient(180deg, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%)",
+                      WebkitMaskImage: "linear-gradient(180deg, rgba(0,0,0,1) 72%, rgba(0,0,0,0) 100%)",
+                      maskImage: "linear-gradient(180deg, rgba(0,0,0,1) 72%, rgba(0,0,0,0) 100%)",
+                      filter: "saturate(1.05) contrast(1.05) brightness(1.05) drop-shadow(0 8px 20px rgba(0,0,0,0.25))",
+                      transform: "translateY(-2%)",
                     }}
                     loading="eager"
                     decoding="async"
@@ -168,14 +171,17 @@ function HeroImageFallback() {
       transition={{ duration: 0.6, delay: 0.1 }}
       className="relative mx-auto w-[20rem] sm:w-[22rem] md:w-[24rem] aspect-[4/3] rounded-2xl border border-white/10 bg-white/10 dark:bg-black/20 shadow-2xl backdrop-blur-lg overflow-hidden"
     >
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-white/5 to-white/10 dark:via-black/10 dark:to-black/20" aria-hidden />
       <img
         src={heroSrc}
         alt="Imagem principal"
         onError={() => setHide(true)}
-        className="w-full h-full object-contain opacity-80 mix-blend-lighten"
+        className="w-full h-full object-contain opacity-75 mix-blend-lighten"
         style={{
-          WebkitMaskImage: "linear-gradient(180deg, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%)",
-          maskImage: "linear-gradient(180deg, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%)",
+          WebkitMaskImage: "linear-gradient(180deg, rgba(0,0,0,1) 72%, rgba(0,0,0,0) 100%)",
+          maskImage: "linear-gradient(180deg, rgba(0,0,0,1) 72%, rgba(0,0,0,0) 100%)",
+          filter: "saturate(1.05) contrast(1.05) brightness(1.05) drop-shadow(0 8px 20px rgba(0,0,0,0.25))",
+          transform: "translateY(-2%)",
         }}
         loading="eager"
         decoding="async"
