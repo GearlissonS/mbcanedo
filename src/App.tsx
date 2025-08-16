@@ -66,7 +66,8 @@ function InnerRoutes() {
       >
         <Routes location={location} key={location.pathname}>
           <Route element={<MainLayout />}> 
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Index />} />
+            <Route path="/home" element={<Home />} />
             <Route path="/sales" element={<Sales />} />
             <Route path="/ranking" element={<Ranking />} />
             <Route path="/ranking/full" element={<RankingFull />} />
