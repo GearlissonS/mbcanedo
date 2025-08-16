@@ -151,3 +151,46 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 ---
 
 **Desenvolvido com ❤️ para facilitar a gestão de vendas imobiliárias**
+
+## 🗄️ Configuração do Banco (Supabase)
+
+Siga estes passos para o app funcionar 100% com dados online (GitHub Pages ou outro hosting):
+
+1) Criar projeto no Supabase
+- Crie um projeto em supabase.com e anote:
+	- Project URL (Settings > API > Project URL)
+	- anon public key (Settings > API > anon key)
+
+2) Variáveis de ambiente
+- Local (.env):
+	- `VITE_SUPABASE_URL=...`
+	- `VITE_SUPABASE_ANON_KEY=...`
+- CI (GitHub > Settings > Secrets and variables > Actions):
+	- `VITE_SUPABASE_URL`
+	- `VITE_SUPABASE_ANON_KEY`
+
+3) Rodar o schema no Supabase
+- Abra SQL Editor e rode o arquivo em `supabase/migrations/20250815_full_schema.sql`.
+- Isso cria as tabelas necessárias (equipes, agents) e opcionais (corretores, brokers, vendas) e habilita RLS permissivo (demo, sem login).
+- Se você usa autenticação, troque as políticas por versões que exigem `auth.role() = 'authenticated'`.
+
+4) Seeds (opcional)
+Execute no SQL Editor:
+
+```sql
+insert into public.equipes (nome, meta_equipe) values ('Equipe A', 100000), ('Equipe B', 150000)
+on conflict (nome) do nothing;
+
+insert into public.agents (nome, meta, realizado, equipe) values
+('Ana', 20000, 5000, 'Equipe A'),
+('Bruno', 30000, 15000, 'Equipe A');
+```
+
+5) Verificação rápida
+- Configurações > Equipes: criar/listar/editar/excluir deve funcionar (tabela `public.equipes`).
+- Metas (/cadastro-metas): atualizar metas de equipe e individuais (tabela `public.agents`).
+
+Observações
+- O client Supabase já está configurado em `src/context/supabaseClient.ts` e usa `VITE_SUPABASE_KEY` ou `VITE_SUPABASE_ANON_KEY`.
+- Há migrações complementares em `supabase/migrations` (como criação inicial de `equipes`).
+- Se quiser persistir corretores e vendas, habilite as tabelas `brokers` e `vendas` (já no schema) e ajuste a UI conforme necessidade.
