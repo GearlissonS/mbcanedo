@@ -1,5 +1,7 @@
 # My Broker - Sistema de Gestão de Vendas Imobiliárias
 
+[![Deploy](https://github.com/GearlissonS/mbcanedo/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/GearlissonS/mbcanedo/actions/workflows/deploy.yml)
+
 Um sistema moderno e completo para gestão de vendas imobiliárias, com ranking gamificado, dashboard interativo e ferramentas de análise.
 
 ## ✨ Funcionalidades
