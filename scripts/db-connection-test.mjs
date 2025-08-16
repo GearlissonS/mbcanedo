@@ -35,27 +35,33 @@ if (!url || !key) {
   process.exit(1);
 }
 
-const supabase = createClient(url, key);
+// Create a lightweight client suitable for short-lived Node scripts
+// Disable timers to avoid Windows libuv assertion errors when exiting
+const supabase = createClient(url, key, {
+  auth: { persistSession: false, autoRefreshToken: false },
+});
 
 async function main() {
   try {
     // Try query on equipes first (table required by app)
     const { data, error } = await supabase.from('equipes').select('id').limit(1);
-    if (error) {
+  if (error) {
       // If table missing but we can reach the server, report as connected
       const code = error.code || '';
       if (code === '42P01' || /relation .* does not exist/i.test(error.message || '')) {
         console.log('[OK] Connected to Supabase. Table "equipes" not found — run migrations.');
-        process.exit(0);
+        process.exitCode = 0;
+        return;
       }
       console.error('[FAIL] Supabase error:', error.message || error);
-      process.exit(2);
+      process.exitCode = 2;
+      return;
     }
     console.log(`[OK] Connected. Query succeeded. Found ${Array.isArray(data) ? data.length : 0} row(s).`);
-    process.exit(0);
+    process.exitCode = 0;
   } catch (err) {
     console.error('[FAIL] Unexpected error:', err?.message || err);
-    process.exit(3);
+    process.exitCode = 3;
   }
 }
 

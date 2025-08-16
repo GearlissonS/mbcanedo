@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useSettings } from "@/context/SettingsContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const menu = [
   { label: "Início", path: "/" },
@@ -42,7 +43,7 @@ export default function MainLayout() {
             initial={{ x: -20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.5 }}
-          >Meu Corretor Senador Canedo</motion.span>
+          >{settings.title}</motion.span>
         </div>
         <nav className="flex gap-2 ml-8">
           {menu.map((item, idx) => (
@@ -67,7 +68,10 @@ export default function MainLayout() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.4, duration: 0.5 }}
         >
-          <img src={user.avatar} alt={user.name} className="h-8 w-8 rounded-full border-2 border-primary" />
+          <Avatar className="h-9 w-9 ring-2 ring-primary/60">
+            <AvatarImage src={user.avatar} alt={user.name} />
+            <AvatarFallback className="text-xs">{user.name?.split(" ").map(p=>p[0]).slice(0,2).join("") || "US"}</AvatarFallback>
+          </Avatar>
           <span className="text-white font-medium text-sm">{user.name}</span>
         </motion.div>
       </motion.header>
