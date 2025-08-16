@@ -4,6 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { useSettings } from "@/context/SettingsContext";
 import { Building2, Home as HomeIcon, Handshake, TrendingUp, KeyRound } from "lucide-react";
 import BackButton from "@/components/BackButton";
+import { motion } from "framer-motion";
 
 const Index = () => {
   // ...existing code...
@@ -15,7 +16,17 @@ const Index = () => {
     url: typeof window !== "undefined" ? window.location.origin : "/",
   } as const;
   return (
-    <div className="min-h-[calc(100vh-56px)] grid place-items-center bg-gradient-to-b from-background to-muted/40 animate-fade-in">
+    <div className="relative min-h-[calc(100vh-56px)] grid place-items-center overflow-hidden">
+      {/* Background gradient + shapes */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(1350px_750px_at_10%_10%,#1e40af_15%,transparent_60%),radial-gradient(1200px_700px_at_90%_20%,#6d28d9_10%,transparent_60%),radial-gradient(1000px_600px_at_50%_90%,#06b6d4_10%,transparent_60%)]"
+      />
+      <div aria-hidden className="absolute inset-0 -z-10 backdrop-blur-[2px]" />
+      {/* Subtle blobs */}
+      <div aria-hidden className="absolute -top-16 -left-20 h-72 w-72 rounded-full bg-blue-500/20 blur-3xl" />
+      <div aria-hidden className="absolute -bottom-24 -right-16 h-80 w-80 rounded-full bg-cyan-400/20 blur-3xl" />
+
       <BackButton />
       <Helmet>
         <title>{settings.title} — Gestão de Vendas Imobiliárias</title>
@@ -27,21 +38,27 @@ const Index = () => {
       </Helmet>
 
       <section className="relative w-full max-w-6xl px-4">
-        <div className="relative overflow-hidden rounded-2xl border bg-card/80 backdrop-blur supports-[backdrop-filter]:bg-card/70">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-accent/10" aria-hidden="true" />
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/10 dark:bg-black/20 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.3)] backdrop-blur-xl supports-[backdrop-filter]:bg-white/10"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-cyan-400/10" aria-hidden="true" />
 
-          <div className="relative grid items-center gap-8 p-8 md:grid-cols-[1.4fr,1fr] md:p-12">
-            <div className="text-center md:text-left">
+          <div className="relative grid items-center gap-10 p-8 md:grid-cols-[1.25fr,1fr] md:p-12">
+            <div className="text-center md:text-left max-w-2xl mx-auto md:mx-0">
               <div className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm bg-background/70">
                 <span className="inline-block h-2 w-2 rounded-full bg-primary" />
                 Soluções Imobiliárias
               </div>
 
-              <h1 className="mt-4 text-4xl sm:text-5xl font-bold tracking-tight">
-                {settings.title} — Gestão de Vendas Imobiliárias
+              <h1 className="mt-5 text-4xl sm:text-5xl font-extrabold leading-tight tracking-tight">
+                {settings.title} — Gestão de
+                <span className="ml-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-300">Corretores</span>
               </h1>
-              <p className="mt-4 text-muted-foreground text-lg">
-                Organize vendas, motive sua equipe com ranking gamificado e acompanhe KPIs em um dashboard moderno.
+              <p className="mt-4 text-muted-foreground/90 text-lg md:text-xl leading-relaxed">
+                Organize <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300 font-semibold">Vendas</span>, motive sua equipe com ranking gamificado e acompanhe KPIs em um dashboard moderno.
               </p>
 
               <div className="mt-8 flex flex-wrap items-center justify-center md:justify-start gap-3">
@@ -55,28 +72,18 @@ const Index = () => {
                   <Link to="/ranking">Ver Ranking</Link>
                 </Button>
               </div>
-
-              <div className="mt-8 grid grid-cols-2 sm:grid-cols-5 gap-4 text-muted-foreground">
-                <div className="flex items-center justify-center gap-2">
-                  <Building2 className="h-5 w-5" aria-hidden="true" />
-                  <span className="text-sm">Imóveis</span>
-                </div>
-                <div className="flex items-center justify-center gap-2">
-                  <HomeIcon className="h-5 w-5" aria-hidden="true" />
-                  <span className="text-sm">Casas</span>
-                </div>
-                <div className="flex items-center justify-center gap-2">
-                  <Handshake className="h-5 w-5" aria-hidden="true" />
-                  <span className="text-sm">Equipe</span>
-                </div>
-                <div className="flex items-center justify-center gap-2">
-                  <TrendingUp className="h-5 w-5" aria-hidden="true" />
-                  <span className="text-sm">Crescimento</span>
-                </div>
-                <div className="flex items-center justify-center gap-2">
-                  <KeyRound className="h-5 w-5" aria-hidden="true" />
-                  <span className="text-sm">Chaves</span>
-                </div>
+              <div className="mt-9 grid grid-cols-2 sm:grid-cols-5 gap-4 text-muted-foreground">
+                {[{icon: Building2, label:'Imóveis'}, {icon: HomeIcon, label:'Casas'}, {icon: Handshake, label:'Equipe'}, {icon: TrendingUp, label:'Crescimento'}, {icon: KeyRound, label:'Chaves'}].map((it, i) => (
+                  <motion.div
+                    key={it.label}
+                    whileHover={{ y: -4, scale: 1.02 }}
+                    transition={{ type: 'spring', stiffness: 260, damping: 18 }}
+                    className="flex items-center justify-center gap-2 rounded-2xl bg-white/10 dark:bg-black/20 border border-white/10 shadow-sm py-3"
+                  >
+                    <it.icon className="h-6 w-6 text-blue-300" aria-hidden="true" />
+                    <span className="text-sm font-medium text-white/90">{it.label}</span>
+                  </motion.div>
+                ))}
               </div>
             </div>
 
@@ -91,18 +98,39 @@ const Index = () => {
                   />
                 </div>
               ) : (
-                <div className="mx-auto h-40 w-40 sm:h-48 sm:w-48 rounded-2xl border bg-primary/10 shadow-inner flex items-center justify-center">
-                  <div className="grid grid-cols-2 gap-3 text-primary">
-                    <Building2 className="h-10 w-10" aria-hidden="true" />
-                    <HomeIcon className="h-10 w-10" aria-hidden="true" />
-                    <Handshake className="h-10 w-10" aria-hidden="true" />
-                    <TrendingUp className="h-10 w-10" aria-hidden="true" />
-                  </div>
-                </div>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.6, delay: 0.15 }}
+                  className="relative mx-auto h-56 w-72 sm:h-64 sm:w-80 rounded-2xl border border-white/10 bg-white/10 dark:bg-black/20 shadow-2xl backdrop-blur-lg flex items-center justify-center overflow-hidden"
+                >
+                  {/* Lightweight laptop + charts illustration (inline SVG) */}
+                  <svg width="100%" height="100%" viewBox="0 0 400 260" role="img" aria-label="Ilustração de laptop com gráficos">
+                    <defs>
+                      <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stopColor="#60a5fa" />
+                        <stop offset="50%" stopColor="#a78bfa" />
+                        <stop offset="100%" stopColor="#22d3ee" />
+                      </linearGradient>
+                    </defs>
+                    <rect x="70" y="40" rx="10" ry="10" width="260" height="150" fill="url(#grad)" opacity="0.15" />
+                    <rect x="85" y="55" rx="6" ry="6" width="230" height="120" fill="#0b1220" opacity="0.6" />
+                    {/* Bars */}
+                    <rect x="110" y="150" width="18" height="20" fill="#60a5fa" />
+                    <rect x="140" y="140" width="18" height="30" fill="#a78bfa" />
+                    <rect x="170" y="120" width="18" height="50" fill="#22d3ee" />
+                    <rect x="200" y="100" width="18" height="70" fill="#60a5fa" />
+                    <rect x="230" y="130" width="18" height="40" fill="#22d3ee" />
+                    {/* Line */}
+                    <polyline points="110,150 140,140 170,120 200,100 230,130 260,115" fill="none" stroke="#86efac" strokeWidth="3" strokeLinejoin="round" />
+                    {/* Base */}
+                    <rect x="60" y="190" width="280" height="18" rx="9" fill="url(#grad)" opacity="0.35" />
+                  </svg>
+                </motion.div>
               )}
             </div>
           </div>
-        </div>
+        </motion.div>
       </section>
     </div>
   );

@@ -186,7 +186,7 @@ export default function Dashboard() {
   const colors = settings.chartColors;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
       <BackButton />
       <Helmet>
         <title>{settings.title} — Dashboard</title>
@@ -194,7 +194,7 @@ export default function Dashboard() {
       </Helmet>
 
       {/* Card de Personalização do Dashboard */}
-      <motion.div layout className="mb-2 px-2 py-1 rounded-lg shadow bg-white/70 dark:bg-slate-900/70 flex flex-wrap gap-2 items-center justify-center max-w-md mx-auto border border-primary/10" style={{opacity:0.85}}>
+  <motion.div layout className="mb-2 px-2 py-1 rounded-2xl shadow bg-white/50 dark:bg-slate-900/50 backdrop-blur border border-white/10 flex flex-wrap gap-2 items-center justify-center max-w-md mx-auto" style={{opacity:0.95}}>
         <Palette size={18} className="mr-2 opacity-60" />
         <button
           className={`px-2 py-1 rounded font-semibold flex items-center gap-1 transition text-xs ${theme === 'light' ? 'bg-primary text-white' : 'bg-slate-700 text-white'}`}
@@ -217,12 +217,12 @@ export default function Dashboard() {
       </motion.div>
 
       {/* Barra de filtros com ícones */}
-      <motion.div layout className="flex flex-wrap items-center gap-4 mb-6 px-2 py-3 rounded-xl bg-white/70 dark:bg-slate-900/70 border border-primary/10 shadow max-w-3xl mx-auto">
+  <motion.div layout className="flex flex-wrap items-center gap-4 mb-6 px-3 py-3 rounded-2xl bg-white/50 dark:bg-slate-900/50 backdrop-blur border border-white/10 shadow max-w-3xl mx-auto">
         <div className="flex items-center gap-2">
           <CalendarDays size={18} className="text-primary" />
           <Label className="mr-1">Período</Label>
           <Select value={mode} onValueChange={(v: "mensal" | "anual" | "custom") => setMode(v)}>
-            <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-32 rounded-full"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="mensal">Mensal</SelectItem>
               <SelectItem value="anual">Anual</SelectItem>
@@ -234,7 +234,7 @@ export default function Dashboard() {
           <User size={18} className="text-primary" />
           <Label className="mr-1">Corretor</Label>
           <Select value={seller} onValueChange={(v: string) => setSeller(v)}>
-            <SelectTrigger className="w-36"><SelectValue placeholder="Todos" /></SelectTrigger>
+            <SelectTrigger className="w-36 rounded-full"><SelectValue placeholder="Todos" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos</SelectItem>
               {vendedores.map((v) => (<SelectItem key={v} value={v}>{v}</SelectItem>))}
@@ -245,11 +245,11 @@ export default function Dashboard() {
           <>
             <div className="flex items-center gap-2">
               <Label>Início</Label>
-              <Input type="date" value={start} onChange={(e) => setStart(e.target.value)} />
+              <Input className="rounded-full" type="date" value={start} onChange={(e) => setStart(e.target.value)} />
             </div>
             <div className="flex items-center gap-2">
               <Label>Fim</Label>
-              <Input type="date" value={end} onChange={(e) => setEnd(e.target.value)} />
+              <Input className="rounded-full" type="date" value={end} onChange={(e) => setEnd(e.target.value)} />
             </div>
           </>
         )}
@@ -277,28 +277,28 @@ export default function Dashboard() {
               subtitle: "Volume Geral de Vendas",
               icon: DollarSign,
               trend: { value: pct(kpis.totalVgv, prevKpis.totalVgv), label: "vs período anterior" },
-              color: kpis.totalVgv >= prevKpis.totalVgv ? "from-green-500 to-blue-500" : "from-red-500 to-blue-500"
+              color: kpis.totalVgv >= prevKpis.totalVgv ? "from-blue-700 to-purple-600" : "from-blue-600 to-purple-500"
             }, {
               title: "VGC Total",
               value: formatCurrency(kpis.totalVgc),
               subtitle: "Volume Geral de Comissão",
               icon: TrendingUp,
               trend: { value: pct(kpis.totalVgc, prevKpis.totalVgc), label: "vs período anterior" },
-              color: kpis.totalVgc >= prevKpis.totalVgc ? "from-green-500 to-cyan-500" : "from-red-500 to-cyan-500"
+              color: kpis.totalVgc >= prevKpis.totalVgc ? "from-emerald-500 to-cyan-500" : "from-emerald-400 to-cyan-400"
             }, {
               title: "Vendas",
               value: kpis.totalSales,
               subtitle: "Total de transações",
               icon: BarChart3,
               trend: { value: pct(kpis.totalSales, prevKpis.totalSales), label: "vs período anterior" },
-              color: kpis.totalSales >= prevKpis.totalSales ? "from-green-500 to-purple-500" : "from-red-500 to-purple-500"
+              color: kpis.totalSales >= prevKpis.totalSales ? "from-orange-500 to-pink-500" : "from-orange-400 to-pink-400"
             }, {
               title: "Taxa de Conversão",
               value: `${kpis.conversionRate.toFixed(1)}%`,
               subtitle: "Aprovadas vs Total",
               icon: Target,
               trend: { value: pct(kpis.conversionRate, prevKpis.conversionRate), label: "vs período anterior" },
-              color: kpis.conversionRate >= prevKpis.conversionRate ? "from-green-500 to-indigo-500" : "from-red-500 to-indigo-500"
+              color: kpis.conversionRate >= prevKpis.conversionRate ? "from-purple-600 to-violet-600" : "from-purple-500 to-violet-500"
             }].map((props, idx) => (
               <motion.div
                 key={props.title}
@@ -306,17 +306,19 @@ export default function Dashboard() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 30 }}
                 transition={{ duration: 0.7, delay: 0.2 + idx * 0.15 }}
-                whileHover={{ scale: 1.06 }}
-                className={`rounded-2xl p-6 shadow-xl bg-gradient-to-br ${props.color} text-white flex flex-col items-center justify-center gap-2 relative`}
+                whileHover={{ scale: 1.05 }}
+                className={`rounded-2xl p-6 shadow-xl bg-gradient-to-br ${props.color} text-white flex flex-col items-center justify-center gap-3 relative`}
               >
-                <div className="absolute top-3 right-3 text-xs opacity-60">{props.trend.value >= 0 ? "▲" : "▼"} {props.trend.value}%</div>
-                <props.icon size={36} className="mb-2" />
-                <div className="font-bold text-lg mb-1">{props.title}</div>
-                <div className="text-4xl font-extrabold mb-1 transition-all duration-500">{props.value}</div>
-                <div className="text-xs opacity-80 mb-2">{props.subtitle}</div>
+                <div className="absolute top-3 right-3 text-xs opacity-80 font-semibold">
+                  {props.trend.value >= 0 ? <span className="text-emerald-200">▲</span> : <span className="text-red-200">▼</span>} {props.trend.value}%
+                </div>
+                <props.icon size={40} className="mb-1 opacity-90" />
+                <div className="font-bold text-lg">{props.title}</div>
+                <div className="text-4xl font-extrabold transition-all duration-500 drop-shadow-sm">{props.value}</div>
+                <div className="text-xs/5 opacity-90">{props.subtitle}</div>
                 {/* Mini indicador de progresso */}
-                <div className="w-full h-2 rounded bg-white/20 overflow-hidden">
-                  <motion.div className="h-2 rounded bg-white/80" style={{ width: `${Math.min(100, Math.abs(props.trend.value))}%` }} layout transition={{ duration: 0.5 }} />
+                <div className="w-full h-2 rounded-full bg-white/20 overflow-hidden">
+                  <motion.div className="h-2 rounded-full bg-white/80" style={{ width: `${Math.min(100, Math.abs(props.trend.value))}%` }} layout transition={{ duration: 0.5 }} />
                 </div>
               </motion.div>
             ))}
@@ -332,7 +334,7 @@ export default function Dashboard() {
       )}
 
   <section className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-8">
-        <div className="rounded-xl border bg-card p-4">
+  <div className="rounded-2xl border border-white/10 bg-white/60 dark:bg-slate-900/60 backdrop-blur p-4 shadow">
           <h2 className="font-semibold mb-2">VGV Mensal</h2>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -352,7 +354,7 @@ export default function Dashboard() {
             </ResponsiveContainer>
           </div>
         </div>
-        <div className="rounded-xl border bg-card p-4">
+  <div className="rounded-2xl border border-white/10 bg-white/60 dark:bg-slate-900/60 backdrop-blur p-4 shadow">
           <h2 className="font-semibold mb-2">VGC Mensal</h2>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -372,7 +374,7 @@ export default function Dashboard() {
             </ResponsiveContainer>
           </div>
         </div>
-        <div className="rounded-xl border bg-card p-4">
+  <div className="rounded-2xl border border-white/10 bg-white/60 dark:bg-slate-900/60 backdrop-blur p-4 shadow">
           <h2 className="font-semibold mb-2">Ranking de Corretores</h2>
           <div className="h-72 overflow-auto">
             <ul className="space-y-2">
@@ -382,10 +384,10 @@ export default function Dashboard() {
                 if (idx === 1) medalColor = 'bg-gray-400';
                 if (idx === 2) medalColor = 'bg-orange-400';
                 return (
-                  <li key={r.vendedor} className="flex items-center gap-3 p-2 rounded-lg shadow-sm bg-white dark:bg-slate-800">
+          <li key={r.vendedor} className="flex items-center gap-3 p-2 rounded-xl shadow-sm bg-white/80 dark:bg-slate-800/80 backdrop-blur">
                     <div className="relative">
                       <img src={`https://i.pravatar.cc/40?u=${encodeURIComponent(r.vendedor)}`} alt={r.vendedor} className="h-10 w-10 rounded-full object-cover border-2 border-primary" />
-                      {idx < 3 && <span className={`absolute -top-2 -right-2 h-5 w-5 rounded-full flex items-center justify-center text-xs font-bold text-white ${medalColor}`}>{idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉'}</span>}
+            {idx < 3 && <span className={`absolute -top-2 -right-2 h-5 w-5 rounded-full flex items-center justify-center text-xs font-bold text-white ${medalColor}`}></span>}
                     </div>
                     <span className="font-semibold text-base">{r.vendedor}</span>
                     <span className="ml-auto font-bold text-green-700">{formatCurrency(r.VGV)}</span>
@@ -395,7 +397,7 @@ export default function Dashboard() {
             </ul>
           </div>
         </div>
-        <div className="rounded-xl border bg-card p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="rounded-2xl border border-white/10 bg-white/60 dark:bg-slate-900/60 backdrop-blur p-4 grid grid-cols-1 md:grid-cols-2 gap-4 shadow">
           <div>
             <h2 className="font-semibold mb-2">Revenda x Lançamento</h2>
             <div className="h-64">
@@ -427,7 +429,7 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-        <div className="rounded-xl border bg-card p-4">
+  <div className="rounded-2xl border border-white/10 bg-white/60 dark:bg-slate-900/60 backdrop-blur p-4 shadow">
           <h2 className="font-semibold mb-2">% do VGC com base no VGV</h2>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
