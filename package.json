@@ -12,6 +12,8 @@
   "preview": "vite preview",
   "db:test": "node ./scripts/db-connection-test.mjs",
   "audit": "node ./scripts/audit-site.mjs",
+  "diagnose": "node ./scripts/diagnose-project.mjs",
+  "audit:all": "node ./scripts/audit-all.mjs",
   "serve:dist": "node ./scripts/serve-static.mjs"
   },
   "dependencies": {

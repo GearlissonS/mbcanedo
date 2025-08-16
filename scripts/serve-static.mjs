@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import http from 'node:http';
-import { createReadStream, existsSync } from 'node:fs';
+import { createReadStream, existsSync, statSync } from 'node:fs';
 import { extname, join, resolve } from 'node:path';
 
 const port = Number(process.env.PORT || 4173);
@@ -34,7 +34,11 @@ const server = http.createServer((req, res) => {
     createReadStream(path).pipe(res);
   };
 
-  if (existsSync(filePath) && !filePath.endsWith('/')) return send(filePath);
+  const isFile = (p) => {
+    try { return statSync(p).isFile(); } catch { return false; }
+  };
+
+  if (existsSync(filePath) && isFile(filePath)) return send(filePath);
 
   // SPA fallback
   filePath = join(dist, 'index.html');
