@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import EquipeManager from "./EquipeManager";
+import { CadastroEquipes } from "@/components/settings/CadastroEquipes";
 import { useSettings, MenuKey } from "@/context/SettingsContext";
 import { useData } from "@/context/data-core";
 import type { Sale } from "@/context/types";
@@ -328,7 +329,10 @@ export default function Settings() {
         <TabsContent value="equipes" className="space-y-4">
           <div className="p-4 border rounded-lg bg-card">
             <h2 className="font-semibold mb-3">Cadastro de Equipes</h2>
+            {/* Tabela completa */}
             <EquipeManager />
+            {/* Versão compacta baseada em React Query (opcional) */}
+            {/* <div className="mt-6"><CadastroEquipes /></div> */}
           </div>
         </TabsContent>
       </Tabs>
