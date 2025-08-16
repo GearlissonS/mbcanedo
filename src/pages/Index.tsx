@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Helmet } from "react-helmet-async";
 import { useSettings } from "@/context/SettingsContext";
@@ -88,7 +89,27 @@ const Index = () => {
             </div>
 
             <div className="relative mx-auto">
-              {settings.logoDataUrl ? (
+              {settings.homeImage ? (
+                // Prioriza imagem personalizada da Home vinda das Configurações
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.6, delay: 0.1 }}
+                  className="relative mx-auto w-[20rem] sm:w-[22rem] md:w-[24rem] aspect-[4/3] rounded-2xl border border-white/10 bg-white/10 dark:bg-black/20 shadow-2xl backdrop-blur-lg overflow-hidden"
+                >
+                  <img
+                    src={settings.homeImage}
+                    alt="Ilustração principal"
+                    className="w-full h-full object-contain opacity-80 mix-blend-lighten"
+                    style={{
+                      WebkitMaskImage: "linear-gradient(180deg, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%)",
+                      maskImage: "linear-gradient(180deg, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%)",
+                    }}
+                    loading="eager"
+                    decoding="async"
+                  />
+                </motion.div>
+              ) : settings.logoDataUrl ? (
                 <div className="mx-auto h-40 w-40 sm:h-48 sm:w-48 rounded-full border bg-background/80 shadow-sm flex items-center justify-center">
                   <img
                     src={settings.logoDataUrl}
@@ -98,35 +119,8 @@ const Index = () => {
                   />
                 </div>
               ) : (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.6, delay: 0.15 }}
-                  className="relative mx-auto h-56 w-72 sm:h-64 sm:w-80 rounded-2xl border border-white/10 bg-white/10 dark:bg-black/20 shadow-2xl backdrop-blur-lg flex items-center justify-center overflow-hidden"
-                >
-                  {/* Lightweight laptop + charts illustration (inline SVG) */}
-                  <svg width="100%" height="100%" viewBox="0 0 400 260" role="img" aria-label="Ilustração de laptop com gráficos">
-                    <defs>
-                      <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0%" stopColor="#60a5fa" />
-                        <stop offset="50%" stopColor="#a78bfa" />
-                        <stop offset="100%" stopColor="#22d3ee" />
-                      </linearGradient>
-                    </defs>
-                    <rect x="70" y="40" rx="10" ry="10" width="260" height="150" fill="url(#grad)" opacity="0.15" />
-                    <rect x="85" y="55" rx="6" ry="6" width="230" height="120" fill="#0b1220" opacity="0.6" />
-                    {/* Bars */}
-                    <rect x="110" y="150" width="18" height="20" fill="#60a5fa" />
-                    <rect x="140" y="140" width="18" height="30" fill="#a78bfa" />
-                    <rect x="170" y="120" width="18" height="50" fill="#22d3ee" />
-                    <rect x="200" y="100" width="18" height="70" fill="#60a5fa" />
-                    <rect x="230" y="130" width="18" height="40" fill="#22d3ee" />
-                    {/* Line */}
-                    <polyline points="110,150 140,140 170,120 200,100 230,130 260,115" fill="none" stroke="#86efac" strokeWidth="3" strokeLinejoin="round" />
-                    {/* Base */}
-                    <rect x="60" y="190" width="280" height="18" rx="9" fill="url(#grad)" opacity="0.35" />
-                  </svg>
-                </motion.div>
+                // Tenta carregar imagem pública /hero.png; se não existir, cai no SVG ilustrativo
+                <HeroImageFallback />
               )}
             </div>
           </div>
@@ -135,5 +129,59 @@ const Index = () => {
     </div>
   );
 };
+
+// Componente auxiliar: tenta exibir /hero.png (em public/) com opacidade e blend; se falhar, mostra SVG ilustrativa
+function HeroImageFallback() {
+  const [hide, setHide] = useState(false);
+  const heroSrc = `${import.meta.env.BASE_URL}hero.png`;
+  if (hide) return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.6, delay: 0.15 }}
+      className="relative mx-auto h-56 w-72 sm:h-64 sm:w-80 rounded-2xl border border-white/10 bg-white/10 dark:bg-black/20 shadow-2xl backdrop-blur-lg flex items-center justify-center overflow-hidden"
+    >
+      <svg width="100%" height="100%" viewBox="0 0 400 260" role="img" aria-label="Ilustração de laptop com gráficos">
+        <defs>
+          <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#60a5fa" />
+            <stop offset="50%" stopColor="#a78bfa" />
+            <stop offset="100%" stopColor="#22d3ee" />
+          </linearGradient>
+        </defs>
+        <rect x="70" y="40" rx="10" ry="10" width="260" height="150" fill="url(#grad)" opacity="0.15" />
+        <rect x="85" y="55" rx="6" ry="6" width="230" height="120" fill="#0b1220" opacity="0.6" />
+        <rect x="110" y="150" width="18" height="20" fill="#60a5fa" />
+        <rect x="140" y="140" width="18" height="30" fill="#a78bfa" />
+        <rect x="170" y="120" width="18" height="50" fill="#22d3ee" />
+        <rect x="200" y="100" width="18" height="70" fill="#60a5fa" />
+        <rect x="230" y="130" width="18" height="40" fill="#22d3ee" />
+        <polyline points="110,150 140,140 170,120 200,100 230,130 260,115" fill="none" stroke="#86efac" strokeWidth="3" strokeLinejoin="round" />
+        <rect x="60" y="190" width="280" height="18" rx="9" fill="url(#grad)" opacity="0.35" />
+      </svg>
+    </motion.div>
+  );
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.6, delay: 0.1 }}
+      className="relative mx-auto w-[20rem] sm:w-[22rem] md:w-[24rem] aspect-[4/3] rounded-2xl border border-white/10 bg-white/10 dark:bg-black/20 shadow-2xl backdrop-blur-lg overflow-hidden"
+    >
+      <img
+        src={heroSrc}
+        alt="Imagem principal"
+        onError={() => setHide(true)}
+        className="w-full h-full object-contain opacity-80 mix-blend-lighten"
+        style={{
+          WebkitMaskImage: "linear-gradient(180deg, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%)",
+          maskImage: "linear-gradient(180deg, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%)",
+        }}
+        loading="eager"
+        decoding="async"
+      />
+    </motion.div>
+  );
+}
 
 export default Index;
