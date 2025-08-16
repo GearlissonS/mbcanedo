@@ -329,10 +329,26 @@ export default function Settings() {
         <TabsContent value="equipes" className="space-y-4">
           <div className="p-4 border rounded-lg bg-card">
             <h2 className="font-semibold mb-3">Cadastro de Equipes</h2>
-            {/* Tabela completa */}
-            <EquipeManager />
-            {/* Versão compacta baseada em React Query (opcional) */}
-            {/* <div className="mt-6"><CadastroEquipes /></div> */}
+            {/* Versão compacta (padrão) */}
+            <CadastroEquipes />
+
+            {/* Toggle para gestão completa */}
+            <div className="flex justify-end mt-4">
+              <Button
+                variant="secondary"
+                onClick={() => setPreviewSettings({ ...previewSettings, showFullTeams: !(previewSettings as any).showFullTeams })}
+                aria-controls="gestao-completa-equipes"
+                aria-expanded={String((previewSettings as any).showFullTeams === true)}
+              >
+                {((previewSettings as any).showFullTeams === true) ? "Ocultar gestão completa" : "Expandir gestão completa"}
+              </Button>
+            </div>
+
+            {((previewSettings as any).showFullTeams === true) && (
+              <div id="gestao-completa-equipes" className="mt-6">
+                <EquipeManager />
+              </div>
+            )}
           </div>
         </TabsContent>
       </Tabs>

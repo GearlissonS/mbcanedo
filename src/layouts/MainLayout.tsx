@@ -10,7 +10,6 @@ const menu = [
   { label: "Ranking de Corretores", path: "/ranking" },
   { label: "Kanban de Vendas", path: "/kanban-vendas" },
   { label: "Cadastro de Metas", path: "/cadastro-metas" },
-  { label: "Cadastro de Equipes", path: "/equipes" },
   { label: "Configurações", path: "/settings" },
 ];
 
