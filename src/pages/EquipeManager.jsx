@@ -3,6 +3,7 @@ import { supabase } from "@/context/supabaseClient";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Check, Edit2, Trash2, PlusCircle } from "lucide-react";
 import { toast } from "sonner";
@@ -69,80 +70,96 @@ export default function EquipeManager() {
   }
 
   return (
-    <div className="min-h-[60vh] grid place-items-center p-4">
-      <Card className="w-full max-w-2xl">
-        <CardHeader>
-          <CardTitle>Cadastro de Equipes</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-2 items-center mb-4">
+    <div className="p-2">
+      <Card className="w-full">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <CardTitle>Equipes</CardTitle>
+          <div className="flex gap-2 items-center">
             <Input
-              placeholder="Digite o nome da equipe…"
+              placeholder="Nova equipe…"
               value={nome}
               onChange={(e) => setNome(e.target.value)}
               disabled={loading}
+              className="w-56"
             />
             <Button onClick={adicionarEquipe} disabled={loading} className="gap-2">
-              <PlusCircle size={18} /> Salvar
+              <PlusCircle size={18} /> Adicionar
             </Button>
           </div>
-
-          <div className="space-y-2">
-            {loading && equipes.length === 0 ? (
-              <div className="text-sm text-muted-foreground">Carregando…</div>
-            ) : equipes.length === 0 ? (
-              <div className="text-sm text-muted-foreground">Nenhuma equipe cadastrada.</div>
-            ) : (
-              <ul className="divide-y">
-                {equipes.map((eq) => (
-                  <li key={eq.id} className="py-2 flex items-center gap-2 justify-between">
-                    {editingId === eq.id ? (
-                      <div className="flex-1 flex gap-2 items-center">
-                        <Input
-                          value={editingNome}
-                          onChange={(e) => setEditingNome(e.target.value)}
-                          className="max-w-sm"
-                          autoFocus
-                        />
-                        <Button size="sm" className="gap-1" onClick={salvarEdicao}>
-                          <Check size={16} /> Salvar
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={() => { setEditingId(null); setEditingNome(""); }}>Cancelar</Button>
-                      </div>
-                    ) : (
-                      <div className="flex-1 font-medium">{eq.nome}</div>
-                    )}
-                    {editingId !== eq.id && (
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="secondary" className="gap-1" onClick={() => iniciarEdicao(eq)}>
-                          <Edit2 size={16} /> Editar
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button size="sm" variant="destructive" className="gap-1">
-                              <Trash2 size={16} /> Excluir
+        </CardHeader>
+        <CardContent>
+          {loading && equipes.length === 0 ? (
+            <div className="text-sm text-muted-foreground">Carregando…</div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[80px]">ID</TableHead>
+                  <TableHead>Nome</TableHead>
+                  <TableHead className="w-[220px] text-right">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {equipes.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={3} className="text-muted-foreground">Nenhuma equipe cadastrada.</TableCell>
+                  </TableRow>
+                ) : (
+                  equipes.map((eq) => (
+                    <TableRow key={eq.id}>
+                      <TableCell className="text-muted-foreground">{eq.id}</TableCell>
+                      <TableCell>
+                        {editingId === eq.id ? (
+                          <div className="flex items-center gap-2">
+                            <Input
+                              value={editingNome}
+                              onChange={(e) => setEditingNome(e.target.value)}
+                              className="max-w-sm"
+                              autoFocus
+                            />
+                            <Button size="sm" className="gap-1" onClick={salvarEdicao}>
+                              <Check size={16} /> Salvar
                             </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Excluir equipe</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Tem certeza que deseja excluir "{eq.nome}"? Essa ação não pode ser desfeita.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => excluirEquipe(eq.id)}>Excluir</AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+                            <Button size="sm" variant="outline" onClick={() => { setEditingId(null); setEditingNome(""); }}>Cancelar</Button>
+                          </div>
+                        ) : (
+                          <span className="font-medium">{eq.nome}</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {editingId !== eq.id ? (
+                          <div className="flex justify-end gap-2">
+                            <Button size="sm" variant="secondary" className="gap-1" onClick={() => iniciarEdicao(eq)}>
+                              <Edit2 size={16} /> Editar
+                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button size="sm" variant="destructive" className="gap-1">
+                                  <Trash2 size={16} /> Excluir
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Excluir equipe</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Tem certeza que deseja excluir "{eq.nome}"? Essa ação não pode ser desfeita.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => excluirEquipe(eq.id)}>Excluir</AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        ) : null}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>

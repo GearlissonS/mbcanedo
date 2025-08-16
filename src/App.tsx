@@ -73,8 +73,7 @@ function InnerRoutes() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/kanban-vendas" element={<KanbanVendas />} />
-                <Route path="/cadastro-metas" element={<Metas />} />
-            <Route path="/equipes" element={<EquipeManager />} />
+            <Route path="/cadastro-metas" element={<Metas />} />
             {/* Página de corretores removida */}
           </Route>
           <Route path="*" element={<NotFound />} />

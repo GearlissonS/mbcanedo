@@ -93,13 +93,14 @@ export default function Settings() {
       </Helmet>
 
       <Tabs defaultValue="tema" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="tema">Tema</TabsTrigger>
           <TabsTrigger value="menu">Menu</TabsTrigger>
           <TabsTrigger value="listas">Listas</TabsTrigger>
           <TabsTrigger value="corretores">Corretores</TabsTrigger>
           <TabsTrigger value="gamificacao">Gamificação</TabsTrigger>
           <TabsTrigger value="dados">Dados</TabsTrigger>
+          <TabsTrigger value="equipes">Equipes</TabsTrigger>
         </TabsList>
 
         {/* Aba Tema */}
@@ -321,10 +322,12 @@ export default function Settings() {
               </Label>
             </div>
           </div>
+        </TabsContent>
 
-          {/* Cadastro e seleção dinâmica de equipes */}
-          <div className="p-4 border rounded-lg bg-card mt-6">
-            <h2 className="font-semibold mb-3">Equipes</h2>
+        {/* Aba Equipes */}
+        <TabsContent value="equipes" className="space-y-4">
+          <div className="p-4 border rounded-lg bg-card">
+            <h2 className="font-semibold mb-3">Cadastro de Equipes</h2>
             <EquipeManager />
           </div>
         </TabsContent>
