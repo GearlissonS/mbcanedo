@@ -7,8 +7,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Check, Edit2, Trash2, PlusCircle } from "lucide-react";
 import { toast } from "sonner";
+import { useSettings } from "@/context/SettingsContext";
 
 export default function EquipeManager() {
+  const { settings } = useSettings();
   const [equipes, setEquipes] = useState([]);
   const [nome, setNome] = useState("");
   const [loading, setLoading] = useState(false);
@@ -96,13 +98,15 @@ export default function EquipeManager() {
                 <TableRow>
                   <TableHead className="w-[80px]">ID</TableHead>
                   <TableHead>Nome</TableHead>
+                  <TableHead className="w-[160px]">Criada em</TableHead>
+                  <TableHead className="w-[140px]">Corretores</TableHead>
                   <TableHead className="w-[220px] text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {equipes.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={3} className="text-muted-foreground">Nenhuma equipe cadastrada.</TableCell>
+                    <TableCell colSpan={5} className="text-muted-foreground">Nenhuma equipe cadastrada.</TableCell>
                   </TableRow>
                 ) : (
                   equipes.map((eq) => (
@@ -125,6 +129,14 @@ export default function EquipeManager() {
                         ) : (
                           <span className="font-medium">{eq.nome}</span>
                         )}
+                      </TableCell>
+                      <TableCell>
+                        {eq.created_at ? new Date(eq.created_at).toLocaleDateString() : "—"}
+                      </TableCell>
+                      <TableCell>
+                        {Array.isArray(settings?.brokers)
+                          ? (settings.brokers || []).filter((b) => b.team === eq.nome).length
+                          : 0}
                       </TableCell>
                       <TableCell className="text-right">
                         {editingId !== eq.id ? (
