@@ -1,0 +1,39 @@
+name: CI Audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Serve build and run audit
+        run: |
+          node scripts/serve-static.mjs &
+          npx wait-on http://localhost:4173/mbcanedo/
+          node scripts/audit-site.mjs http://localhost:4173/mbcanedo/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-artifacts
+          path: artifacts/
