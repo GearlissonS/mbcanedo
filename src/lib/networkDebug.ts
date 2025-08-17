@@ -24,7 +24,6 @@ if (typeof window !== 'undefined' && !window.__FETCH_LOGGER_INSTALLED__) {
       // ignore
     }
     // fallback
-    // eslint-disable-next-line no-console
     console.warn('[toast]', msg);
   }
 
