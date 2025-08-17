@@ -8,7 +8,8 @@ import React, { Suspense, lazy } from "react";
 import { useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 const AppLayout = lazy(() => import("@/layouts/AppLayout").catch((e) => { console.error('[lazy] Failed to load layouts/AppLayout', e); throw e; }));
-const MainLayout = lazy(() => import("./layouts/MainLayout").catch((e) => { console.error('[lazy] Failed to load layouts/MainLayout', e); throw e; }));
+// Import MainLayout statically to prevent initial load being blocked by a chunk fetch
+import MainLayout from "./layouts/MainLayout";
 const Home = lazy(() => import("./pages/Home").catch((e) => { console.error('[lazy] Failed to load pages/Home', e); throw e; }));
 const Index = lazy(() => import("./pages/Index").catch((e) => { console.error('[lazy] Failed to load pages/Index', e); throw e; }));
 const NotFound = lazy(() => import("./pages/NotFound").catch((e) => { console.error('[lazy] Failed to load pages/NotFound', e); throw e; }));
@@ -20,6 +21,7 @@ const RankingFull = lazy(() => import("./pages/RankingFull").catch((e) => { cons
 import { SettingsProvider } from "@/context/SettingsContext";
 import { DataProvider } from "@/context/DataContext";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 const queryClient = new QueryClient();
 
@@ -33,9 +35,11 @@ const App = () => (
               <Toaster />
               <Sonner />
               <BrowserRouter basename={import.meta.env.BASE_URL}>
-                <Suspense fallback={<div className="flex justify-center items-center h-screen text-lg">Carregando...</div>}>
-                  <InnerRoutes />
-                </Suspense>
+                <ErrorBoundary>
+                  <Suspense fallback={<div className="flex justify-center items-center h-screen text-lg">Carregando...</div>}>
+                    <InnerRoutes />
+                  </Suspense>
+                </ErrorBoundary>
               </BrowserRouter>
             </TooltipProvider>
           </DataProvider>
