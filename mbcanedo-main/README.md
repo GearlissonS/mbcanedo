@@ -91,7 +91,29 @@ npm run build
 npm run preview
 ```
 
-## 🔧 Configuração
+## � Deploy
+
+Deploy automático no GitHub Pages a cada push na branch `master`.
+
+- Site: https://gearilissons.github.io/mbcanedo/#/
+- Status: ![Deploy](https://github.com/GearlissonS/mbcanedo/actions/workflows/deploy.yml/badge.svg)
+
+Atualizar manualmente (opcional):
+
+```bash
+# Build de produção
+npm run build
+
+# Publicar dist/ para a branch gh-pages
+npm run deploy
+```
+
+Requisitos para Pages:
+- Base do Vite ajustada para subpath (`/mbcanedo/`) em produção
+- HashRouter para rotas SPA sem 404 no Pages
+- `public/404.html` para redireciono de deep links (opção alternativa quando não usar Actions)
+
+## �🔧 Configuração
 
 1. **Personalizar cores**: Vá em Configurações > Tema
 2. **Adicionar corretores**: Configurações > Corretores
