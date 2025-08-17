@@ -29,3 +29,6 @@ dist-ssr
 
 # Legacy script not used
 copy404.js
+
+# Accidental nested project folder
+mbcanedo-main/
