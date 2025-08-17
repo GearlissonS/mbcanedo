@@ -17,7 +17,10 @@ export function CadastroEquipes() {
         .from("equipes")
         .select("*")
         .order("created_at", { ascending: false });
-      if (error) throw error;
+      if (error) {
+        console.error('[CadastroEquipes] list equipes failed', error);
+        throw error;
+      }
       return data ?? [];
     },
   });
@@ -27,7 +30,10 @@ export function CadastroEquipes() {
       const trimmed = nome.trim();
       if (!trimmed) return;
       const { error } = await supabase.from("equipes").insert([{ nome: trimmed }]);
-      if (error) throw error;
+      if (error) {
+        console.error('[CadastroEquipes] insert equipe failed', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       setNome("");
@@ -40,7 +46,10 @@ export function CadastroEquipes() {
   const deleteEquipe = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("equipes").delete().eq("id", id);
-      if (error) throw error;
+      if (error) {
+        console.error('[CadastroEquipes] delete equipe failed', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["equipes"] });

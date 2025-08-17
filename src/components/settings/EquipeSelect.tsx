@@ -5,8 +5,16 @@ export default function EquipeSelect(props) {
   const [equipes, setEquipes] = useState([]);
   useEffect(() => {
     async function carregarEquipes() {
-      const { data, error } = await supabase.from("equipes").select("*").order("nome");
-      if (!error) setEquipes(data);
+      try {
+        const { data, error } = await supabase.from("equipes").select("*").order("nome");
+        if (error) {
+          console.error('[EquipeSelect] listar equipes failed', error);
+        } else {
+          setEquipes(data || []);
+        }
+      } catch (err) {
+        console.error('[EquipeSelect] listar equipes threw', err);
+      }
     }
     carregarEquipes();
   }, []);
