@@ -58,6 +58,7 @@ function InnerRoutes() {
   // Página de corretores removida
   const Metas = React.lazy(() => import("./pages/Metas").catch((e) => { console.error('[lazy] Failed to load pages/Metas', e); throw e; }));
   const EquipeManager = React.lazy(() => import("./pages/EquipeManager").catch((e) => { console.error('[lazy] Failed to load pages/EquipeManager', e); throw e; }));
+  const MetasCorretor = React.lazy(() => import("./pages/MetasCorretor").catch((e) => { console.error('[lazy] Failed to load pages/MetasCorretor', e); throw e; }));
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -79,6 +80,7 @@ function InnerRoutes() {
             <Route path="/settings" element={<Settings />} />
             <Route path="/kanban-vendas" element={<KanbanVendas />} />
             <Route path="/cadastro-metas" element={<Metas />} />
+            <Route path="/metas-corretor" element={<MetasCorretor />} />
             {/* Página de corretores removida */}
           </Route>
           <Route path="*" element={<NotFound />} />
