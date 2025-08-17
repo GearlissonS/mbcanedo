@@ -22,18 +22,25 @@ export default function Metas() {
 
   async function buscarCorretores() {
     setLoading(true);
-    const { data, error } = await supabase.from("agents").select("*");
-    if (!error) {
-      const lista = data.map(c => ({
-        ...c,
-        meta: c.meta || 0,
-        realizado: c.realizado || 0
-      }));
-      setCorretores(lista);
-      // Soma dos realizados para meta da equipe
-      setRealizadoEquipe(lista.reduce((acc, cur) => acc + (cur.realizado || 0), 0));
+    try {
+      const { data, error } = await supabase.from("agents").select("*");
+      if (error) {
+        console.error('[Metas] buscarCorretores failed', error);
+      } else {
+        const lista = (data || []).map(c => ({
+          ...c,
+          meta: c.meta || 0,
+          realizado: c.realizado || 0
+        }));
+        setCorretores(lista);
+        // Soma dos realizados para meta da equipe
+        setRealizadoEquipe(lista.reduce((acc, cur) => acc + (cur.realizado || 0), 0));
+      }
+    } catch (err) {
+      console.error('[Metas] buscarCorretores threw', err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   function atualizarMetaCorretor(id, valor) {
@@ -50,13 +57,19 @@ export default function Metas() {
 
   async function salvarMetas() {
     setLoading(true);
-    const updates = corretores.map(c =>
-      supabase.from("agents").update({ meta: c.meta }).eq("id", c.id)
-    );
-    await Promise.all(updates);
-    // Aqui você pode salvar metaEquipe em outra tabela se desejar
-    setLoading(false);
-    alert("Metas salvas com sucesso!");
+    try {
+      const updates = corretores.map(c =>
+        supabase.from("agents").update({ meta: c.meta }).eq("id", c.id)
+      );
+      await Promise.all(updates);
+      // Aqui você pode salvar metaEquipe em outra tabela se desejar
+      alert("Metas salvas com sucesso!");
+    } catch (err) {
+      console.error('[Metas] salvarMetas threw', err);
+      alert("Falha ao salvar metas.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   function getBarColor(percent) {

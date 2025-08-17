@@ -7,16 +7,16 @@ import { HelmetProvider } from "react-helmet-async";
 import React, { Suspense, lazy } from "react";
 import { useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-const AppLayout = lazy(() => import("@/layouts/AppLayout"));
-const MainLayout = lazy(() => import("./layouts/MainLayout"));
-const Home = lazy(() => import("./pages/Home"));
-const Index = lazy(() => import("./pages/Index"));
-const NotFound = lazy(() => import("./pages/NotFound"));
-const Sales = lazy(() => import("./pages/Sales"));
-const Ranking = lazy(() => import("./pages/Ranking"));
-const Dashboard = lazy(() => import("./pages/Dashboard"));
-const Settings = lazy(() => import("./pages/Settings"));
-const RankingFull = lazy(() => import("./pages/RankingFull"));
+const AppLayout = lazy(() => import("@/layouts/AppLayout").catch((e) => { console.error('[lazy] Failed to load layouts/AppLayout', e); throw e; }));
+const MainLayout = lazy(() => import("./layouts/MainLayout").catch((e) => { console.error('[lazy] Failed to load layouts/MainLayout', e); throw e; }));
+const Home = lazy(() => import("./pages/Home").catch((e) => { console.error('[lazy] Failed to load pages/Home', e); throw e; }));
+const Index = lazy(() => import("./pages/Index").catch((e) => { console.error('[lazy] Failed to load pages/Index', e); throw e; }));
+const NotFound = lazy(() => import("./pages/NotFound").catch((e) => { console.error('[lazy] Failed to load pages/NotFound', e); throw e; }));
+const Sales = lazy(() => import("./pages/Sales").catch((e) => { console.error('[lazy] Failed to load pages/Sales', e); throw e; }));
+const Ranking = lazy(() => import("./pages/Ranking").catch((e) => { console.error('[lazy] Failed to load pages/Ranking', e); throw e; }));
+const Dashboard = lazy(() => import("./pages/Dashboard").catch((e) => { console.error('[lazy] Failed to load pages/Dashboard', e); throw e; }));
+const Settings = lazy(() => import("./pages/Settings").catch((e) => { console.error('[lazy] Failed to load pages/Settings', e); throw e; }));
+const RankingFull = lazy(() => import("./pages/RankingFull").catch((e) => { console.error('[lazy] Failed to load pages/RankingFull', e); throw e; }));
 import { SettingsProvider } from "@/context/SettingsContext";
 import { DataProvider } from "@/context/DataContext";
 import { ThemeProvider } from "@/context/ThemeContext";
@@ -49,11 +49,11 @@ export default App;
 
 function InnerRoutes() {
   const location = useLocation();
-  const KanbanVendas = React.lazy(() => import("./pages/KanbanVendas/KanbanVendas"));
-  const MetasPage = React.lazy(() => import("./pages/MetasPage"));
+  const KanbanVendas = React.lazy(() => import("./pages/KanbanVendas/KanbanVendas").catch((e) => { console.error('[lazy] Failed to load pages/KanbanVendas/KanbanVendas', e); throw e; }));
+  const MetasPage = React.lazy(() => import("./pages/MetasPage").catch((e) => { console.error('[lazy] Failed to load pages/MetasPage', e); throw e; }));
   // Página de corretores removida
-  const Metas = React.lazy(() => import("./pages/Metas"));
-  const EquipeManager = React.lazy(() => import("./pages/EquipeManager"));
+  const Metas = React.lazy(() => import("./pages/Metas").catch((e) => { console.error('[lazy] Failed to load pages/Metas', e); throw e; }));
+  const EquipeManager = React.lazy(() => import("./pages/EquipeManager").catch((e) => { console.error('[lazy] Failed to load pages/EquipeManager', e); throw e; }));
   return (
     <AnimatePresence mode="wait">
       <motion.div

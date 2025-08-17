@@ -10,20 +10,42 @@ export default function MetasPage() {
   }, []);
 
   async function carregarDados() {
-    const { data: eq } = await supabase.from("equipes").select("*");
-    setEquipes(eq || []);
-    const { data: cor } = await supabase.from("corretores").select("*");
-    setCorretores(cor || []);
+    try {
+      const { data: eq, error: eqErr } = await supabase.from("equipes").select("*");
+      if (eqErr) console.error('[MetasPage] carregarDados equipes failed', eqErr);
+      setEquipes(eq || []);
+      const { data: cor, error: corErr } = await supabase.from("corretores").select("*");
+      if (corErr) console.error('[MetasPage] carregarDados corretores failed', corErr);
+      setCorretores(cor || []);
+    } catch (err) {
+      console.error('[MetasPage] carregarDados threw', err);
+    }
   }
 
   async function atualizarMetaEquipe(id, valor) {
-    await supabase.from("equipes").update({ meta_equipe: valor }).eq("id", id);
-    carregarDados();
+    try {
+      const { error } = await supabase.from("equipes").update({ meta_equipe: valor }).eq("id", id);
+      if (error) {
+        console.error('[MetasPage] atualizarMetaEquipe failed', error);
+      }
+    } catch (err) {
+      console.error('[MetasPage] atualizarMetaEquipe threw', err);
+    } finally {
+      carregarDados();
+    }
   }
 
   async function atualizarMetaCorretor(id, valor) {
-    await supabase.from("corretores").update({ meta_individual: valor }).eq("id", id);
-    carregarDados();
+    try {
+      const { error } = await supabase.from("corretores").update({ meta_individual: valor }).eq("id", id);
+      if (error) {
+        console.error('[MetasPage] atualizarMetaCorretor failed', error);
+      }
+    } catch (err) {
+      console.error('[MetasPage] atualizarMetaCorretor threw', err);
+    } finally {
+      carregarDados();
+    }
   }
 
   function calcularPorcentagem(valor, meta) {
