@@ -1,19 +1,34 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
-import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
+import { supabase } from "../context/supabaseClient";
+import confetti from "canvas-confetti";
+import {
+  BarChart as ReBarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import { exportXLSX, exportPDF } from "../utils/exporters";
 
 // Data types
-export type BrokerGoal = {
-  id: string;
+export type Broker = { id: string; nome: string };
+
+export type BrokerMonthMeta = {
+  corretorId: string;
   nome: string;
+  ano: number;
+  mes: MonthIndex; // 0-11
   metaPiso: number;
-  metaAlvo: number;
-  realizado: number;
+  realizado: number; // calculado de vendas
+  observacoes?: string;
 };
 
 export type MonthIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
@@ -33,18 +48,6 @@ const MONTHS: { key: MonthIndex; label: string }[] = [
   { key: 11, label: "Dez" },
 ];
 
-// Mock list of brokers (IDs + names only)
-const BROKERS: Array<Pick<BrokerGoal, "id" | "nome">> = [
-  { id: "1", nome: "João Silva" },
-  { id: "2", nome: "Maria Souza" },
-  { id: "3", nome: "Carlos Lima" },
-  { id: "4", nome: "Ana Paula" },
-  { id: "5", nome: "Bruno Castro" },
-  { id: "6", nome: "Fernanda Alves" },
-  { id: "7", nome: "Rafael Gomes" },
-  { id: "8", nome: "Juliana Rocha" },
-];
-
 function currency(v: number) {
   return `R$ ${Math.round(v || 0).toLocaleString("pt-BR")}`;
 }
@@ -54,9 +57,9 @@ function pct(done: number, target: number) {
   return Math.max(0, Math.min(100, (done / target) * 100));
 }
 
-function classByStatus(realizado: number, piso: number, alvo: number) {
-  if (realizado >= alvo) return "bg-green-500";
-  if (realizado >= piso) return "bg-yellow-500";
+function classByProgress(progress: number) {
+  if (progress >= 90) return "bg-green-500";
+  if (progress >= 50) return "bg-yellow-500";
   return "bg-red-500";
 }
 
@@ -69,95 +72,223 @@ function ColoredProgress({ value, colorClass }: { value: number; colorClass: str
   );
 }
 
-const buildInitialState = (): Record<MonthIndex, BrokerGoal[]> => {
-  return MONTHS.reduce((acc, m) => {
-    acc[m.key] = BROKERS.map((b, i) => ({
-      id: b.id,
-      nome: b.nome,
-      metaPiso: 200_000 + i * 25_000,
-      metaAlvo: 350_000 + i * 30_000,
-      realizado: (i % 3 === 0 ? 380_000 : 150_000) + (m.key % 2 === 0 ? i * 8_000 : i * 5_000),
-    }));
-    return acc;
-  }, {} as Record<MonthIndex, BrokerGoal[]>);
-};
+type MetaMap = Record<MonthIndex, Record<string /*corretorId*/, BrokerMonthMeta>>;
 
 export default function MetasCorretor() {
   const now = new Date();
+  const thisYear = now.getFullYear();
+  const [year, setYear] = useState<number>(thisYear);
   const [month, setMonth] = useState<MonthIndex>(now.getMonth() as MonthIndex);
-  const [byMonth, setByMonth] = useState<Record<MonthIndex, BrokerGoal[]>>(buildInitialState());
-  const [search, setSearch] = useState("");
-  const [rankingMode, setRankingMode] = useState(true);
-  const [editing, setEditing] = useState<{ id: string; field: keyof BrokerGoal } | null>(null);
+  const [brokers, setBrokers] = useState<Broker[]>([]);
+  const [metaMap, setMetaMap] = useState<MetaMap>({} as MetaMap);
+  const [chartBrokerId, setChartBrokerId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const didConfetti = useRef(new Set<string>());
 
-  const current = byMonth[month] || [];
+  // Load brokers
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      const { data, error } = await supabase.from("corretores").select("id, nome").order("nome");
+      if (error) {
+        console.error("[MetasCorretor] load brokers", error);
+        return;
+      }
+      if (!active) return;
+      setBrokers(data as Broker[]);
+      setChartBrokerId((prev) => prev ?? (data?.[0]?.id ?? null));
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    let list = current.filter((b) => (q ? b.nome.toLowerCase().includes(q) : true));
-    if (rankingMode) list = [...list].sort((a, b) => b.realizado - a.realizado);
-    return list;
-  }, [current, search, rankingMode]);
+  // Load metas and vendas for the year -> build metaMap
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      if (!brokers.length) return;
+      setLoading(true);
+      try {
+        // 1) metas_corretor: meta_piso & observacoes por corretor/mes/ano
+        const { data: metas, error: metasErr } = await supabase
+          .from("metas_corretor")
+          .select("corretor_id, mes, ano, meta_piso, observacoes")
+          .eq("ano", year);
+        if (metasErr) console.error("[MetasCorretor] load metas", metasErr);
 
-  const teamHitPct = useMemo(() => {
-    if (!current.length) return 0;
-    const hit = current.filter((b) => b.realizado >= b.metaAlvo).length;
-    return Math.round((hit / current.length) * 100);
-  }, [current]);
+        // 2) vendas do ano: somar vgv por vendedor & mes
+        const start = new Date(year, 0, 1).toISOString();
+        const end = new Date(year + 1, 0, 1).toISOString();
+        const { data: vendas, error: vendasErr } = await supabase
+          .from("vendas")
+          .select("vendedor, vgv, dataCompetencia")
+          .gte("dataCompetencia", start)
+          .lt("dataCompetencia", end);
+        if (vendasErr) console.error("[MetasCorretor] load vendas", vendasErr);
 
-  const setValue = (id: string, field: keyof BrokerGoal, value: number) => {
-    setByMonth((prev) => ({
+        const nameById = new Map(brokers.map((b) => [b.id, b.nome] as const));
+        const idByName = new Map(brokers.map((b) => [b.nome, b.id] as const));
+
+        // Aggregate realizado by corretorId + mes
+        const realizadoMap = new Map<string /*corretorId-mes*/, number>();
+        for (const v of vendas ?? []) {
+          const vendedor = (v as any).vendedor as string | null;
+          const id = vendedor ? idByName.get(vendedor) : undefined;
+          if (!id) continue;
+          const d = new Date((v as any).dataCompetencia);
+          const m = d.getMonth() as MonthIndex;
+          const key = `${id}-${m}`;
+          realizadoMap.set(key, (realizadoMap.get(key) || 0) + (Number((v as any).vgv) || 0));
+        }
+
+        // Build MetaMap
+        const map: MetaMap = {} as MetaMap;
+        for (const m of MONTHS) map[m.key] = {} as Record<string, BrokerMonthMeta>;
+
+        // Initialize with zeros
+        for (const b of brokers) {
+          for (const m of MONTHS) {
+            map[m.key][b.id] = {
+              corretorId: b.id,
+              nome: nameById.get(b.id) || b.id,
+              ano: year,
+              mes: m.key,
+              metaPiso: 0,
+              realizado: realizadoMap.get(`${b.id}-${m.key}`) || 0,
+              observacoes: undefined,
+            };
+          }
+        }
+
+        // Apply metas from DB
+        for (const r of metas ?? []) {
+          const cid = (r as any).corretor_id as string;
+          const mes0 = (Number((r as any).mes) - 1) as MonthIndex; // DB mes 1-12 -> 0-11
+          if (!map[mes0] || !map[mes0][cid]) continue;
+          map[mes0][cid].metaPiso = Number((r as any).meta_piso) || 0;
+          map[mes0][cid].observacoes = (r as any).observacoes || undefined;
+        }
+
+        if (!active) return;
+        setMetaMap(map);
+      } finally {
+        if (active) setLoading(false);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [year, brokers]);
+
+  const currentRows: BrokerMonthMeta[] = useMemo(() => {
+    const rows = Object.values(metaMap[month] || {});
+    // no ranking required
+    return rows;
+  }, [metaMap, month]);
+
+  // Chart data for selected broker across months
+  const chartData = useMemo(() => {
+    if (!chartBrokerId) return [] as { mes: string; metaPiso: number; realizado: number }[];
+    return MONTHS.map(({ key, label }) => {
+      const row = metaMap[key]?.[chartBrokerId];
+      return {
+        mes: label,
+        metaPiso: row?.metaPiso || 0,
+        realizado: row?.realizado || 0,
+      };
+    });
+  }, [chartBrokerId, metaMap]);
+
+  // Update single field (metaPiso or observacoes) and persist
+  async function saveMetaPiso(corretorId: string, mes: MonthIndex, value: number) {
+    const payload = { corretor_id: corretorId, ano: year, mes: mes + 1, meta_piso: value };
+    const { error } = await supabase.from("metas_corretor").upsert(payload, { onConflict: "corretor_id,ano,mes" });
+    if (error) console.error("[MetasCorretor] upsert meta_piso", error);
+  }
+
+  async function saveObservacoes(corretorId: string, mes: MonthIndex, value: string) {
+    const payload = { corretor_id: corretorId, ano: year, mes: mes + 1, observacoes: value };
+    const { error } = await supabase.from("metas_corretor").upsert(payload, { onConflict: "corretor_id,ano,mes" });
+    if (error) console.error("[MetasCorretor] upsert observacoes", error);
+  }
+
+  const setLocalMetaPiso = (corretorId: string, mes: MonthIndex, value: number) => {
+    setMetaMap((prev) => ({
       ...prev,
-      [month]: prev[month].map((b) => (b.id === id ? { ...b, [field]: Number.isFinite(value) ? Math.max(0, value) : 0 } : b)),
+      [mes]: {
+        ...prev[mes],
+        [corretorId]: {
+          ...(prev[mes]?.[corretorId] || { corretorId, nome: brokers.find(b=>b.id===corretorId)?.nome || corretorId, ano: year, mes, realizado: 0 }),
+          metaPiso: value,
+        },
+      },
     }));
   };
 
-  const startEdit = (id: string, field: keyof BrokerGoal) => setEditing({ id, field });
-  const stopEdit = () => setEditing(null);
+  const setLocalObservacoes = (corretorId: string, mes: MonthIndex, value: string) => {
+    setMetaMap((prev) => ({
+      ...prev,
+      [mes]: {
+        ...prev[mes],
+        [corretorId]: {
+          ...(prev[mes]?.[corretorId] || { corretorId, nome: brokers.find(b=>b.id===corretorId)?.nome || corretorId, ano: year, mes, realizado: 0 }),
+          observacoes: value,
+        },
+      },
+    }));
+  };
 
-  const EditableCell: React.FC<{
-    broker: BrokerGoal;
-    field: keyof BrokerGoal;
-    format?: (n: number) => string;
-    className?: string;
-  }> = ({ broker, field, format, className }) => {
-    const isEditing = editing && editing.id === broker.id && editing.field === field;
-    const raw = broker[field] as number | string;
-    const display = typeof raw === "number" && format ? format(raw) : String(raw);
-    if (field === "nome") return <span className={className}>{String(raw)}</span>;
-    const numberValue = typeof raw === "number" ? raw : Number(raw) || 0;
-    return (
-      <div className={className}>
-        {isEditing ? (
-          <Input
-            autoFocus
-            type="number"
-            value={numberValue}
-            onChange={(e) => setValue(broker.id, field, Number(e.target.value))}
-            onBlur={stopEdit}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") stopEdit();
-            }}
-            className="h-8 w-28"
-          />
-        ) : (
-          <button onClick={() => startEdit(broker.id, field)} className="hover:underline focus:underline">
-            {display}
-          </button>
-        )}
-      </div>
-    );
+  // Confetti when broker hits or passes meta
+  useEffect(() => {
+    const rows = Object.values(metaMap[month] || {});
+    for (const r of rows) {
+      const progressVal = pct(r.realizado, r.metaPiso);
+      const key = `${year}-${month}-${r.corretorId}`;
+      if (progressVal >= 100 && !didConfetti.current.has(key)) {
+        didConfetti.current.add(key);
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.65 } });
+      }
+    }
+  }, [metaMap, month, year]);
+
+  const exportMonth = () => {
+    const rows = currentRows.map((r) => ({
+      Corretor: r.nome,
+      "Meta Piso": r.metaPiso,
+      Realizado: r.realizado,
+      Progresso: Math.round(pct(r.realizado, r.metaPiso)),
+      Observacoes: r.observacoes || "",
+      Mes: MONTHS.find((m) => m.key === r.mes)?.label,
+      Ano: r.ano,
+    }));
+    exportXLSX(`metas_${year}_${month + 1}.xlsx`, rows);
+  };
+
+  const exportMonthPDF = () => {
+    const rows = currentRows.map((r) => ({
+      corretor: r.nome,
+      metaPiso: currency(r.metaPiso),
+      realizado: currency(r.realizado),
+      progresso: `${Math.round(pct(r.realizado, r.metaPiso))}%`,
+      obs: r.observacoes || "",
+    }));
+    exportPDF(`metas_${year}_${month + 1}.pdf`, rows, [
+      { header: "Corretor", key: "corretor" },
+      { header: "Meta Piso", key: "metaPiso" },
+      { header: "Realizado", key: "realizado" },
+      { header: "Progresso", key: "progresso" },
+      { header: "Observações", key: "obs" },
+    ]);
   };
 
   return (
     <div className="p-4 md:p-6 space-y-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <h1 className="text-xl md:text-2xl font-semibold">Metas por Corretor</h1>
+        <h1 className="text-xl md:text-2xl font-semibold">Metas Individuais dos Corretores</h1>
         <div className="flex items-center gap-2">
-          <Badge className="bg-green-600 text-white">% equipe bateu meta: {teamHitPct}%</Badge>
-          <Button variant={rankingMode ? "default" : "secondary"} onClick={() => setRankingMode((v) => !v)}>
-            {rankingMode ? "Ranking ativo" : "Ranking inativo"}
-          </Button>
+          <Button variant="secondary" onClick={exportMonth}>Exportar Excel</Button>
+          <Button variant="secondary" onClick={exportMonthPDF}>Exportar PDF</Button>
         </div>
       </div>
 
@@ -192,14 +323,50 @@ export default function MetasCorretor() {
             </Select>
           </div>
 
-          <div className="flex items-center gap-2 w-full md:w-auto">
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar corretor..."
-              className="max-w-xs"
-            />
+          {/* Ano */}
+          <div className="w-full md:w-auto max-w-[140px]">
+            <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Ano" />
+              </SelectTrigger>
+              <SelectContent>
+                {[year - 1, year, year + 1].map((y) => (
+                  <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
+        </div>
+      </Card>
+
+      {/* Gráfico comparativo mensal (Meta Piso azul, Realizado verde) para o corretor selecionado */}
+      <Card className="p-3 md:p-4">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-2">
+          <div className="font-medium">Comparativo Mensal</div>
+          <div className="w-full md:w-64">
+            <Select value={chartBrokerId ?? ""} onValueChange={(v) => setChartBrokerId(v)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione o corretor" />
+              </SelectTrigger>
+              <SelectContent>
+                {brokers.map((b) => (
+                  <SelectItem key={b.id} value={b.id}>{b.nome}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div className="h-72 w-full">
+          <ResponsiveContainer>
+            <ReBarChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+              <XAxis dataKey="mes" />
+              <YAxis tickFormatter={(v) => `${(Number(v) / 1000).toFixed(0)}k`} />
+              <Tooltip formatter={(v: any) => currency(Number(v))} />
+              <Legend />
+              <Bar dataKey="metaPiso" fill="#3b82f6" name="Meta Piso" />
+              <Bar dataKey="realizado" fill="#22c55e" name="Realizado" />
+            </ReBarChart>
+          </ResponsiveContainer>
         </div>
       </Card>
 
@@ -210,39 +377,51 @@ export default function MetasCorretor() {
             <TableRow>
               <TableHead>Corretor</TableHead>
               <TableHead>Meta Piso</TableHead>
-              <TableHead>Meta Alvo</TableHead>
               <TableHead>Realizado</TableHead>
-              <TableHead className="min-w-[280px]">Progresso</TableHead>
+              <TableHead>Observações</TableHead>
+              <TableHead className="min-w-[260px]">Progresso</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.map((b) => {
-              const p = pct(b.realizado, b.metaAlvo);
-              const color = classByStatus(b.realizado, b.metaPiso, b.metaAlvo);
-              const falta = Math.max(0, b.metaAlvo - b.realizado);
-              const passed = b.realizado > b.metaAlvo;
+            {currentRows.map((r) => {
+              const progressVal = pct(r.realizado, r.metaPiso);
+              const color = classByProgress(progressVal);
+              const falta = Math.max(0, r.metaPiso - r.realizado);
+              const hit = progressVal >= 100;
               return (
-                <TableRow key={`${b.id}-${month}`} className="align-middle">
+                <TableRow key={`${r.corretorId}-${month}`} className="align-middle">
                   <TableCell className="font-medium whitespace-nowrap">
-                    {passed ? <span className="mr-1">🔥</span> : null}
-                    <EditableCell broker={b} field="nome" />
+                    {hit ? <span className="mr-1">🔥</span> : null}
+                    {r.nome}
                   </TableCell>
                   <TableCell className="whitespace-nowrap">
-                    <EditableCell broker={b} field="metaPiso" format={currency} />
+                    <InlineNumber
+                      value={r.metaPiso}
+                      display={currency(r.metaPiso)}
+                      onChange={async (val) => {
+                        setLocalMetaPiso(r.corretorId, month, val);
+                        await saveMetaPiso(r.corretorId, month, val);
+                      }}
+                    />
                   </TableCell>
-                  <TableCell className="whitespace-nowrap">
-                    <EditableCell broker={b} field="metaAlvo" format={currency} />
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap">
-                    <EditableCell broker={b} field="realizado" format={currency} />
+                  <TableCell className="whitespace-nowrap">{currency(r.realizado)}</TableCell>
+                  <TableCell className="whitespace-nowrap max-w-[260px]">
+                    <InlineText
+                      value={r.observacoes || ""}
+                      placeholder="Adicionar observações..."
+                      onChange={async (val) => {
+                        setLocalObservacoes(r.corretorId, month, val);
+                        await saveObservacoes(r.corretorId, month, val);
+                      }}
+                    />
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <div className="w-56">
-                        <ColoredProgress value={p} colorClass={color} />
+                      <div className="w-48">
+                        <ColoredProgress value={progressVal} colorClass={color} />
                       </div>
                       <div className="text-sm text-muted-foreground whitespace-nowrap">
-                        {p.toFixed(0)}% {falta > 0 ? `• falta ${currency(falta)}` : "• meta batida"}
+                        {Math.round(progressVal)}% {falta > 0 ? `• falta ${currency(falta)}` : "• meta batida"}
                       </div>
                     </div>
                   </TableCell>
@@ -253,5 +432,63 @@ export default function MetasCorretor() {
         </Table>
       </div>
     </div>
+  );
+}
+
+// Inline editable number input (click to edit)
+function InlineNumber({ value, display, onChange }: { value: number; display: string; onChange: (v: number) => void | Promise<void> }) {
+  const [editing, setEditing] = useState(false);
+  const [local, setLocal] = useState<number>(value || 0);
+  useEffect(() => setLocal(value || 0), [value]);
+  return editing ? (
+    <Input
+      autoFocus
+      type="number"
+      className="h-8 w-32"
+      value={local}
+      onChange={(e) => setLocal(Number(e.target.value))}
+      onBlur={async () => {
+        setEditing(false);
+        await onChange(local || 0);
+      }}
+      onKeyDown={async (e) => {
+        if (e.key === "Enter") {
+          (e.target as HTMLInputElement).blur();
+        }
+      }}
+    />
+  ) : (
+    <button className="hover:underline" onClick={() => setEditing(true)}>
+      {display}
+    </button>
+  );
+}
+
+function InlineText({ value, placeholder, onChange }: { value: string; placeholder?: string; onChange: (v: string) => void | Promise<void> }) {
+  const [editing, setEditing] = useState(false);
+  const [local, setLocal] = useState<string>(value || "");
+  useEffect(() => setLocal(value || ""), [value]);
+  return editing ? (
+    <Input
+      autoFocus
+      type="text"
+      className="h-8 w-64"
+      value={local}
+      placeholder={placeholder}
+      onChange={(e) => setLocal(e.target.value)}
+      onBlur={async () => {
+        setEditing(false);
+        await onChange(local || "");
+      }}
+      onKeyDown={async (e) => {
+        if (e.key === "Enter") {
+          (e.target as HTMLInputElement).blur();
+        }
+      }}
+    />
+  ) : (
+    <button className="hover:underline text-left break-words max-w-[240px]" onClick={() => setEditing(true)}>
+      {value ? value : <span className="text-muted-foreground">{placeholder || "Adicionar"}</span>}
+    </button>
   );
 }
