@@ -132,14 +132,15 @@ export default function MetasCorretor() {
 
         // Aggregate realizado by corretorId + mes
         const realizadoMap = new Map<string /*corretorId-mes*/, number>();
-        for (const v of vendas ?? []) {
-          const vendedor = (v as any).vendedor as string | null;
+        type VendaRow = { vendedor: string | null; vgv: number; dataCompetencia: string };
+        for (const v of (vendas as unknown as VendaRow[]) ?? []) {
+          const vendedor = v.vendedor;
           const id = vendedor ? idByName.get(vendedor) : undefined;
           if (!id) continue;
-          const d = new Date((v as any).dataCompetencia);
+          const d = new Date(v.dataCompetencia);
           const m = d.getMonth() as MonthIndex;
           const key = `${id}-${m}`;
-          realizadoMap.set(key, (realizadoMap.get(key) || 0) + (Number((v as any).vgv) || 0));
+          realizadoMap.set(key, (realizadoMap.get(key) || 0) + (Number(v.vgv) || 0));
         }
 
         // Build MetaMap
@@ -162,12 +163,13 @@ export default function MetasCorretor() {
         }
 
         // Apply metas from DB
-        for (const r of metas ?? []) {
-          const cid = (r as any).corretor_id as string;
-          const mes0 = (Number((r as any).mes) - 1) as MonthIndex; // DB mes 1-12 -> 0-11
+        type MetaRow = { corretor_id: string; mes: number; ano: number; meta_piso: number | null; observacoes?: string | null };
+        for (const r of (metas as unknown as MetaRow[]) ?? []) {
+          const cid = r.corretor_id;
+          const mes0 = (Number(r.mes) - 1) as MonthIndex; // DB mes 1-12 -> 0-11
           if (!map[mes0] || !map[mes0][cid]) continue;
-          map[mes0][cid].metaPiso = Number((r as any).meta_piso) || 0;
-          map[mes0][cid].observacoes = (r as any).observacoes || undefined;
+          map[mes0][cid].metaPiso = Number(r.meta_piso) || 0;
+          map[mes0][cid].observacoes = r.observacoes || undefined;
         }
 
         if (!active) return;
@@ -361,7 +363,7 @@ export default function MetasCorretor() {
             <ReBarChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
               <XAxis dataKey="mes" />
               <YAxis tickFormatter={(v) => `${(Number(v) / 1000).toFixed(0)}k`} />
-              <Tooltip formatter={(v: any) => currency(Number(v))} />
+              <Tooltip formatter={(v: unknown) => currency(Number(v))} />
               <Legend />
               <Bar dataKey="metaPiso" fill="#3b82f6" name="Meta Piso" />
               <Bar dataKey="realizado" fill="#22c55e" name="Realizado" />

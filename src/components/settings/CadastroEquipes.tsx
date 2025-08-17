@@ -100,7 +100,7 @@ export function CadastroEquipes() {
               <div className="text-sm text-muted-foreground">Carregando…</div>
             ) : (
               <ul className="space-y-1">
-                {equipes?.map((e: any) => (
+                {equipes?.map((e: { id: string; nome: string }) => (
                   <li key={e.id} className="flex justify-between items-center py-1">
                     <span>{e.nome}</span>
                     <Button

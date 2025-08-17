@@ -1,6 +1,7 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 
-type SupabaseCall<T> = Promise<{ data: T | null; error: any }>;
+type SupabaseError = { message?: string } | string | null | undefined;
+type SupabaseCall<T> = Promise<{ data: T | null; error: SupabaseError }>;
 
 /**
  * Wrapper para chamadas Supabase com logs padronizados de erro
@@ -14,12 +15,15 @@ export async function supabaseGuard<T>(
   try {
     const { data, error } = await fn();
     if (error) {
-      console.error(`[Supabase Error] ${label}:`, error.message || error);
+      const msg = typeof error === 'string' ? error : (error?.message || 'Unknown error');
+      console.error(`[Supabase Error] ${label}:`, msg);
       return null;
     }
     return data;
-  } catch (err: any) {
-    console.error(`[Supabase Exception] ${label}:`, err);
+  } catch (err) {
+    const e = err as { message?: string } | string;
+    const msg = typeof e === 'string' ? e : (e?.message || 'Unknown exception');
+    console.error(`[Supabase Exception] ${label}:`, msg);
     return null;
   }
 }
