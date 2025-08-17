@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Sale } from '@/context/DataContext';
+import type { Sale } from '../context/types';
 
 interface ChartDataHookProps {
   sales: Sale[];
@@ -61,8 +61,9 @@ export function useChartData({ sales, period, startDate, endDate, seller }: Char
     const sellerMap = new Map<string, number>();
     
     filteredSales.forEach((sale) => {
-      const current = sellerMap.get(sale.vendedor) || 0;
-      sellerMap.set(sale.vendedor, current + sale.vgv);
+      const vendedor = sale.vendedor ?? '';
+      const current = sellerMap.get(vendedor) || 0;
+      sellerMap.set(vendedor, current + sale.vgv);
     });
 
     return Array.from(sellerMap.entries())
@@ -75,8 +76,9 @@ export function useChartData({ sales, period, startDate, endDate, seller }: Char
     const typeMap = new Map<string, number>();
     
     filteredSales.forEach((sale) => {
-      const current = typeMap.get(sale.tipo) || 0;
-      typeMap.set(sale.tipo, current + sale.vgv);
+      const tipo = sale.tipo ?? '';
+      const current = typeMap.get(tipo) || 0;
+      typeMap.set(tipo, current + sale.vgv);
     });
 
     return Array.from(typeMap.entries())
@@ -87,8 +89,9 @@ export function useChartData({ sales, period, startDate, endDate, seller }: Char
     const originMap = new Map<string, number>();
     
     filteredSales.forEach((sale) => {
-      const current = originMap.get(sale.origem) || 0;
-      originMap.set(sale.origem, current + sale.vgv);
+      const origem = sale.origem ?? '';
+      const current = originMap.get(origem) || 0;
+      originMap.set(origem, current + sale.vgv);
     });
 
     return Array.from(originMap.entries())

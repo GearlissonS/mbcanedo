@@ -20,6 +20,8 @@ export default function Settings() {
 
   // Estado local para preview instantâneo
   const [previewSettings, setPreviewSettings] = useState(settings);
+  // Local-only UI toggle (não faz parte do tipo Settings)
+  const [showFullTeams, setShowFullTeams] = useState(false);
   useEffect(() => {
     setPreviewSettings(settings);
   }, [settings]);
@@ -336,15 +338,15 @@ export default function Settings() {
             <div className="flex justify-end mt-4">
               <Button
                 variant="secondary"
-                onClick={() => setPreviewSettings({ ...previewSettings, showFullTeams: !(previewSettings as any).showFullTeams })}
+                onClick={() => setShowFullTeams((v) => !v)}
                 aria-controls="gestao-completa-equipes"
-                aria-expanded={String((previewSettings as any).showFullTeams === true)}
+                aria-expanded={showFullTeams}
               >
-                {((previewSettings as any).showFullTeams === true) ? "Ocultar gestão completa" : "Expandir gestão completa"}
+                {showFullTeams ? "Ocultar gestão completa" : "Expandir gestão completa"}
               </Button>
             </div>
 
-            {((previewSettings as any).showFullTeams === true) && (
+            {showFullTeams && (
               <div id="gestao-completa-equipes" className="mt-6">
                 <EquipeManager />
               </div>
