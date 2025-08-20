@@ -5,7 +5,7 @@ import { Button } from "../components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
-import { supabase } from "../context/supabaseClient";
+import { safeSelect, safeInsert } from "@/lib/safeSupabaseClient";
 import confetti from "canvas-confetti";
 import {
   BarChart as ReBarChart,
@@ -89,14 +89,15 @@ export default function MetasCorretor() {
   useEffect(() => {
     let active = true;
     (async () => {
-      const { data, error } = await supabase.from("corretores").select("id, nome").order("nome");
-      if (error) {
-        console.error("[MetasCorretor] load brokers", error);
-        return;
+      try {
+        const data = await safeSelect("corretores", { select: "id, nome", order: "nome" });
+        if (!active) return;
+        setBrokers(data as Broker[]);
+        setChartBrokerId((prev) => prev ?? (data?.[0]?.id ?? null));
+      } catch (e) {
+        console.warn("[MetasCorretor] Falha ao carregar corretores, usando lista vazia.", e);
+        setBrokers([]);
       }
-      if (!active) return;
-      setBrokers(data as Broker[]);
-      setChartBrokerId((prev) => prev ?? (data?.[0]?.id ?? null));
     })();
     return () => {
       active = false;
@@ -111,21 +112,12 @@ export default function MetasCorretor() {
       setLoading(true);
       try {
         // 1) metas_corretor: meta_piso & observacoes por corretor/mes/ano
-        const { data: metas, error: metasErr } = await supabase
-          .from("metas_corretor")
-          .select("corretor_id, mes, ano, meta_piso, observacoes")
-          .eq("ano", year);
-        if (metasErr) console.error("[MetasCorretor] load metas", metasErr);
+        const metas = await safeSelect("metas_corretor", { select: "corretor_id, mes, ano, meta_piso, observacoes" });
 
         // 2) vendas do ano: somar vgv por vendedor & mes
         const start = new Date(year, 0, 1).toISOString();
         const end = new Date(year + 1, 0, 1).toISOString();
-        const { data: vendas, error: vendasErr } = await supabase
-          .from("vendas")
-          .select("vendedor, vgv, dataCompetencia")
-          .gte("dataCompetencia", start)
-          .lt("dataCompetencia", end);
-        if (vendasErr) console.error("[MetasCorretor] load vendas", vendasErr);
+        const vendas = await safeSelect("vendas", { select: "vendedor, vgv, dataCompetencia" });
 
         const nameById = new Map(brokers.map((b) => [b.id, b.nome] as const));
         const idByName = new Map(brokers.map((b) => [b.nome, b.id] as const));
@@ -174,6 +166,12 @@ export default function MetasCorretor() {
 
         if (!active) return;
         setMetaMap(map);
+      } catch (e) {
+        console.warn("[MetasCorretor] Falha ao carregar metas/vendas, usando dados vazios.", e);
+        // fallback: empty metaMap
+        const map: MetaMap = {} as MetaMap;
+        for (const m of MONTHS) map[m.key] = {} as Record<string, BrokerMonthMeta>;
+        setMetaMap(map);
       } finally {
         if (active) setLoading(false);
       }
@@ -205,14 +203,20 @@ export default function MetasCorretor() {
   // Update single field (metaPiso or observacoes) and persist
   async function saveMetaPiso(corretorId: string, mes: MonthIndex, value: number) {
     const payload = { corretor_id: corretorId, ano: year, mes: mes + 1, meta_piso: value };
-    const { error } = await supabase.from("metas_corretor").upsert(payload, { onConflict: "corretor_id,ano,mes" });
-    if (error) console.error("[MetasCorretor] upsert meta_piso", error);
+    try {
+      await safeInsert("metas_corretor", payload);
+    } catch (e) {
+      console.warn("[MetasCorretor] Falha ao salvar meta_piso.", e);
+    }
   }
 
   async function saveObservacoes(corretorId: string, mes: MonthIndex, value: string) {
     const payload = { corretor_id: corretorId, ano: year, mes: mes + 1, observacoes: value };
-    const { error } = await supabase.from("metas_corretor").upsert(payload, { onConflict: "corretor_id,ano,mes" });
-    if (error) console.error("[MetasCorretor] upsert observacoes", error);
+    try {
+      await safeInsert("metas_corretor", payload);
+    } catch (e) {
+      console.warn("[MetasCorretor] Falha ao salvar observações.", e);
+    }
   }
 
   const setLocalMetaPiso = (corretorId: string, mes: MonthIndex, value: number) => {

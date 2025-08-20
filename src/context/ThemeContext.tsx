@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { supabase } from "./supabaseClient";
+import { safeSelect, safeInsert } from "@/lib/safeSupabaseClient";
 import { ThemeContext as CoreThemeContext } from "./theme-core";
 export { useTheme } from "./theme-core";
 
@@ -19,19 +19,28 @@ export const ThemeProvider: React.FC<{ userId: string; children: React.ReactNode
   }, [theme, palette]);
 
   const savePreferences = async () => {
-    await supabase.from("user_preferences").upsert({
-      user_id: userId,
-      theme,
-      primary: palette.primary,
-      secondary: palette.secondary,
-    });
+    try {
+      await safeInsert("user_preferences", {
+        user_id: userId,
+        theme,
+        primary: palette.primary,
+        secondary: palette.secondary,
+      });
+    } catch (e) {
+      console.warn("[ThemeContext] Falha ao salvar preferências.", e);
+    }
   };
 
   const loadPreferences = async () => {
-    const { data } = await supabase.from("user_preferences").select("theme,primary,secondary").eq("user_id", userId).single();
-    if (data) {
-      setTheme(data.theme as "light" | "dark");
-      setPalette({ primary: data.primary, secondary: data.secondary });
+    try {
+      const prefs = await safeSelect("user_preferences", { select: "theme,primary,secondary" });
+      const data = Array.isArray(prefs) ? prefs.find((p: any) => p.user_id === userId) : null;
+      if (data) {
+        setTheme(data.theme as "light" | "dark");
+        setPalette({ primary: data.primary, secondary: data.secondary });
+      }
+    } catch (e) {
+      console.warn("[ThemeContext] Falha ao carregar preferências, usando padrão.", e);
     }
   };
 

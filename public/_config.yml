@@ -1,0 +1,7 @@
+baseurl: "/mbcanedo"
+theme: null
+title: ""
+exclude:
+  - node_modules
+  - src
+  - .github

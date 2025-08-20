@@ -22,13 +22,13 @@ export default function MainLayout() {
   const user = { name: "João Silva", avatar: `${import.meta.env.BASE_URL}placeholder.svg` };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#050B2E] to-[#0A1B4D] flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-[#F7F9FC] to-[#EEF2F7] flex flex-col">
       {/* Menu topo animado */}
       <motion.header
         initial={{ y: -40, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.7, ease: "easeOut" }}
-        className="w-full px-6 py-3 flex items-center justify-between bg-[#08153A]/80 backdrop-blur border-b border-slate-800"
+  className="w-full px-6 py-3 flex items-center justify-between bg-white/85 backdrop-blur border-b border-slate-200 shadow-sm"
       >
         <div className="flex items-center gap-4">
           <motion.img
@@ -40,13 +40,13 @@ export default function MainLayout() {
             transition={{ delay: 0.2, duration: 0.5 }}
           />
           <motion.span
-            className="font-extrabold text-xl text-white tracking-tight"
+            className="font-extrabold text-xl text-slate-900 tracking-tight"
             initial={{ x: -20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.5 }}
           >{settings.title}</motion.span>
         </div>
-        <nav className="flex gap-2 ml-8">
+  <nav className="flex gap-2 ml-8">
           {menu.map((item, idx) => (
             <motion.div
               key={item.path}
@@ -56,7 +56,7 @@ export default function MainLayout() {
             >
               <Link
                 to={item.path}
-                className={`px-4 py-2 rounded font-semibold text-sm transition ${location.pathname === item.path ? "bg-primary text-white" : "text-slate-200 hover:bg-primary/20"}`}
+                className={`px-4 py-2 rounded-lg font-semibold text-sm transition ${location.pathname === item.path ? "bg-primary text-white shadow" : "text-slate-700 hover:bg-slate-100"}`}
               >
                 {item.label}
               </Link>
@@ -73,7 +73,7 @@ export default function MainLayout() {
             <AvatarImage src={user.avatar} alt={user.name} />
             <AvatarFallback className="text-xs">{user.name?.split(" ").map(p=>p[0]).slice(0,2).join("") || "US"}</AvatarFallback>
           </Avatar>
-          <span className="text-white font-medium text-sm">{user.name}</span>
+          <span className="text-slate-900 font-medium text-sm">{user.name}</span>
         </motion.div>
       </motion.header>
       {/* Conteúdo */}

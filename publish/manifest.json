@@ -2,18 +2,25 @@
   "name": "My Broker - Gestão de Vendas Imobiliárias",
   "short_name": "My Broker",
   "description": "Sistema moderno para gestão de vendas imobiliárias com ranking gamificado e dashboard interativo",
-  "start_url": "/mbcanedo/",
-  "scope": "/mbcanedo/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0f172a",
   "orientation": "portrait-primary",
   "icons": [
-  { "src": "favicon.ico", "sizes": "16x16 32x32", "type": "image/x-icon" },
-  { "src": "icon-512.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any maskable" }
+    {
+      "src": "./favicon.ico",
+      "sizes": "16x16 32x32",
+      "type": "image/x-icon"
+    }
   ],
   "categories": ["business", "productivity", "finance"],
   "lang": "pt-BR",
   "dir": "ltr"
 }
+
+
+
+
+
 

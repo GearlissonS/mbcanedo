@@ -103,7 +103,7 @@ export default function Metas() {
         animate={{ opacity: 1, y: 0 }}
         transition={easeIn}
       >
-        <Card className="bg-gradient-to-r from-blue-800 to-blue-600 text-white shadow-2xl rounded-2xl">
+  <Card className="bg-gradient-to-r from-blue-700 to-blue-500 text-white soft-shadow rounded-2xl">
           <CardHeader className="flex items-center justify-between">
             <CardTitle className="flex items-center text-2xl gap-2">
               <Target size={28} /> Meta da Equipe
@@ -127,9 +127,9 @@ export default function Metas() {
               <h2 className="text-2xl font-bold text-green-300">{currency(totalRealizado)}</h2>
             </div>
           </CardContent>
-          <div className="w-full bg-blue-400/40 rounded-b-2xl h-3">
+      <div className="w-full bg-white/20 rounded-b-2xl h-3">
             <motion.div
-              className="h-3 bg-green-400 rounded-b-2xl"
+        className="h-3 bg-emerald-400 rounded-b-2xl"
               initial={{ width: 0 }}
               animate={{ width: `${progresso}%` }}
               transition={{ duration: 1.5 }}
@@ -146,7 +146,7 @@ export default function Metas() {
         className="grid grid-cols-1 md:grid-cols-2 gap-6"
       >
         {/* Tabela */}
-        <Card className="rounded-2xl shadow-lg">
+  <Card className="rounded-2xl soft-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users size={22} /> Metas por Mês
@@ -156,7 +156,7 @@ export default function Metas() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b">
+                    <tr className="border-b">
                     <th className="p-2">Mês</th>
                     <th className="p-2">Meta Piso</th>
                     <th className="p-2">Meta Alvo</th>
@@ -165,7 +165,7 @@ export default function Metas() {
                 </thead>
                 <tbody>
                   {metas.map((m) => (
-                    <tr key={m.mes} className="border-b hover:bg-blue-50 transition">
+                    <tr key={m.mes} className="border-b hover:bg-slate-50 transition-colors">
                       <td className="p-2 whitespace-nowrap">{m.mes}</td>
                       <td className="p-2 whitespace-nowrap">{currency(m.metaPiso)}</td>
                       <td className="p-2 whitespace-nowrap">{currency(m.metaAlvo)}</td>
@@ -181,20 +181,20 @@ export default function Metas() {
         </Card>
 
         {/* Gráfico */}
-        <Card className="rounded-2xl shadow-lg">
+  <Card className="rounded-2xl soft-shadow">
           <CardHeader>
-            <CardTitle>Comparativo</CardTitle>
+              <CardTitle className="text-slate-900">Comparativo</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%">
                 <ReBarChart data={metas}>
                   <XAxis dataKey="mes" />
                   <YAxis />
                   <Tooltip formatter={(v: number) => currency(v)} />
                   <Legend />
-                  <Bar dataKey="metaPiso" fill="#3b82f6" name="Meta Piso" />
-                  <Bar dataKey="realizado" fill="#22c55e" name="Realizado" />
+          <Bar dataKey="metaPiso" fill="#60a5fa" name="Meta Piso" />
+          <Bar dataKey="realizado" fill="#34d399" name="Realizado" />
                 </ReBarChart>
               </ResponsiveContainer>
             </div>
@@ -215,7 +215,7 @@ export default function Metas() {
               animate="animate"
               transition={{ delay: idx * 0.12, duration: 0.5 }}
             >
-              <Card className={`rounded-2xl shadow-lg transition ${hit ? "border-2 border-green-500" : ""}`}>
+              <Card className={`rounded-2xl soft-shadow transition ${hit ? "border-2 border-emerald-500/70" : ""}`}>
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-3">
                     <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-700">
@@ -232,9 +232,9 @@ export default function Metas() {
                       {currency(c.realizado)}
                     </span>
                   </p>
-                  <div className="mt-2 w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+          <div className="mt-2 w-full bg-slate-200 rounded-full h-3 overflow-hidden">
                     <motion.div
-                      className={hit ? "h-3 bg-green-500" : "h-3 bg-blue-500"}
+            className={hit ? "h-3 bg-emerald-500" : "h-3 bg-blue-500"}
                       initial={{ width: 0 }}
                       animate={{ width: `${pct}%` }}
                       transition={{ duration: 1 }}

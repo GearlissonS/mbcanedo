@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/context/supabaseClient";
+import { safeSelect, safeInsert, safeDelete } from "@/lib/safeSupabaseClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -10,30 +10,17 @@ export function CadastroEquipes() {
   const [nome, setNome] = useState("");
   const queryClient = useQueryClient();
 
-  const { data: equipes, isLoading } = useQuery({
+  const { data: equipes, isLoading, isError } = useQuery({
     queryKey: ["equipes"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("equipes")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (error) {
-        console.error('[CadastroEquipes] list equipes failed', error);
-        throw error;
-      }
-      return data ?? [];
-    },
+    queryFn: async () => await safeSelect("equipes", { order: "created_at" }),
   });
 
   const addEquipe = useMutation({
     mutationFn: async () => {
       const trimmed = nome.trim();
       if (!trimmed) return;
-      const { error } = await supabase.from("equipes").insert([{ nome: trimmed }]);
-      if (error) {
-        console.error('[CadastroEquipes] insert equipe failed', error);
-        throw error;
-      }
+      const ok = await safeInsert("equipes", { nome: trimmed });
+      if (!ok) throw new Error("Falha ao inserir equipe");
     },
     onSuccess: () => {
       setNome("");
@@ -45,11 +32,8 @@ export function CadastroEquipes() {
 
   const deleteEquipe = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("equipes").delete().eq("id", id);
-      if (error) {
-        console.error('[CadastroEquipes] delete equipe failed', error);
-        throw error;
-      }
+      const ok = await safeDelete("equipes", id);
+      if (!ok) throw new Error("Falha ao excluir equipe");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["equipes"] });
@@ -59,10 +43,10 @@ export function CadastroEquipes() {
   });
 
   return (
-    <div className="bg-gray-50 rounded p-2">
-      <Card className="max-w-xl mx-auto bg-white rounded-2xl shadow">
+    <div className="bg-transparent p-2">
+      <Card className="max-w-xl mx-auto bg-card rounded-2xl soft-shadow">
         <CardHeader>
-          <CardTitle>Cadastro de Equipes</CardTitle>
+          <CardTitle className="text-slate-900">Cadastro de Equipes</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex gap-3">
@@ -71,12 +55,12 @@ export function CadastroEquipes() {
               value={nome}
               onChange={(e) => setNome(e.target.value)}
               disabled={addEquipe.isPending}
-              className="w-full rounded-xl border border-gray-300 bg-gray-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-white"
             />
             <Button
               onClick={() => addEquipe.mutate()}
               disabled={!nome.trim() || addEquipe.isPending}
-              className="rounded-xl px-5 bg-blue-600 hover:bg-blue-700 text-white"
+              className="px-5"
             >
               Salvar
             </Button>
@@ -87,7 +71,7 @@ export function CadastroEquipes() {
             <Button
               onClick={() => addEquipe.mutate()}
               disabled={!nome.trim() || addEquipe.isPending}
-              className="rounded-lg bg-blue-600 hover:bg-blue-700 text-white"
+              className=""
               variant="default"
             >
               Cadastrar
@@ -98,10 +82,12 @@ export function CadastroEquipes() {
             <h3 className="font-bold mb-2">Equipes Cadastradas</h3>
             {isLoading ? (
               <div className="text-sm text-muted-foreground">Carregando…</div>
+            ) : isError ? (
+              <div className="text-sm text-red-500">Não foi possível carregar os dados agora. Tente novamente mais tarde.</div>
             ) : (
               <ul className="space-y-1">
                 {equipes?.map((e: { id: string; nome: string }) => (
-                  <li key={e.id} className="flex justify-between items-center py-1">
+                  <li key={e.id} className="flex justify-between items-center py-1 border-b border-slate-200/70">
                     <span>{e.nome}</span>
                     <Button
                       variant="destructive"

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/context/supabaseClient";
+import { safeSelect, safeInsert, safeUpdate, safeDelete } from "@/lib/safeSupabaseClient";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,15 +24,11 @@ export default function EquipeManager() {
   async function carregarEquipes() {
     setLoading(true);
     try {
-      const { data, error } = await supabase.from("equipes").select("*").order("nome");
-      if (error) {
-        console.error('[EquipeManager] carregarEquipes failed', error);
-        toast.error("Erro ao carregar equipes");
-      } else {
-        setEquipes(data || []);
-      }
+      const data = await safeSelect("equipes", { order: "nome" });
+      setEquipes(data || []);
     } catch (err) {
-      console.error('[EquipeManager] carregarEquipes threw', err);
+      console.warn('[EquipeManager] carregarEquipes falhou, usando lista vazia.', err);
+      setEquipes([]);
       toast.error("Erro ao carregar equipes");
     } finally {
       setLoading(false);
@@ -44,16 +40,13 @@ export default function EquipeManager() {
     if (!novo) return toast.warning("Informe o nome da equipe");
     setLoading(true);
     try {
-      const { error } = await supabase.from("equipes").insert([{ nome: novo }]);
-      if (error) {
-        console.error('[EquipeManager] inserir equipe failed', error);
-        return toast.error("Não foi possível salvar");
-      }
+      const ok = await safeInsert("equipes", { nome: novo });
+      if (!ok) return toast.error("Não foi possível salvar");
       toast.success("Equipe adicionada");
       setNome("");
       carregarEquipes();
     } catch (err) {
-      console.error('[EquipeManager] inserir equipe threw', err);
+      console.warn('[EquipeManager] inserir equipe falhou.', err);
       toast.error("Não foi possível salvar");
     } finally {
       setLoading(false);
@@ -70,17 +63,14 @@ export default function EquipeManager() {
     if (!novoNome) return toast.warning("Nome inválido");
     setLoading(true);
     try {
-      const { error } = await supabase.from("equipes").update({ nome: novoNome }).eq("id", editingId);
-      if (error) {
-        console.error('[EquipeManager] atualizar equipe failed', error);
-        return toast.error("Falha ao atualizar");
-      }
+      const ok = await safeUpdate("equipes", editingId, { nome: novoNome });
+      if (!ok) return toast.error("Falha ao atualizar");
       toast.success("Equipe atualizada");
       setEditingId(null);
       setEditingNome("");
       carregarEquipes();
     } catch (err) {
-      console.error('[EquipeManager] atualizar equipe threw', err);
+      console.warn('[EquipeManager] atualizar equipe falhou.', err);
       toast.error("Falha ao atualizar");
     } finally {
       setLoading(false);
@@ -90,15 +80,12 @@ export default function EquipeManager() {
   async function excluirEquipe(id) {
     setLoading(true);
     try {
-      const { error } = await supabase.from("equipes").delete().eq("id", id);
-      if (error) {
-        console.error('[EquipeManager] excluir equipe failed', error);
-        return toast.error("Falha ao excluir");
-      }
+      const ok = await safeDelete("equipes", id);
+      if (!ok) return toast.error("Falha ao excluir");
       toast.success("Equipe excluída");
       carregarEquipes();
     } catch (err) {
-      console.error('[EquipeManager] excluir equipe threw', err);
+      console.warn('[EquipeManager] excluir equipe falhou.', err);
       toast.error("Falha ao excluir");
     } finally {
       setLoading(false);

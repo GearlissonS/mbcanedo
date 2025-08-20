@@ -1,122 +1,99 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Global UI polish: softer palette, better contrast, modern surfaces, subtle motion */
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here.
-All colors MUST be HSL.
-*/
-
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --primary-variant: 222.2 70% 20%;
-    --primary-glow: 222.2 90% 60%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 220 100% 20%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 220 100% 20%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 100% 15%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 220 100% 15%;
-    --sidebar-ring: 220 100% 30%;
-
-    /* Premium tokens */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
-    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(210 40% 98%));
-    --shadow-elevated: 0 10px 30px -10px hsl(var(--primary-glow) / 0.3);
-    --shadow-glow: 0 0 40px hsl(var(--primary-glow) / 0.35);
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 220 100% 15%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 220 100% 15%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 100% 10%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 220 100% 10%;
-    --sidebar-ring: 220 100% 25%;
-  }
+:root {
+  --ui-bg: #f7f9fc; /* light blue/gray */
+  --ui-bg-2: #eef2f7;
+  --ui-fg: #0f172a; /* slate-900 */
+  --ui-muted: #64748b; /* slate-500 */
+  --ui-border: #e2e8f0; /* slate-200 */
+  --ui-card: #ffffff;
+  --ui-primary: #2563eb; /* blue-600 */
+  --ui-primary-foreground: #ffffff;
+  --ui-success: #16a34a; /* green-600 */
+  --ui-zebra: #f8fafc; /* very light */
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
 
-  body {
-    @apply bg-background text-foreground font-jakarta;
-      min-height: 100vh;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      transition: background 0.3s, color 0.3s;
-  }
-  html {
-    scroll-behavior: smooth;
-    font-family: 'Inter', 'Poppins', sans-serif;
-      background: hsl(var(--background));
-      color: hsl(var(--foreground));
-  }
+body {
+  background: linear-gradient(180deg, var(--ui-bg) 0%, var(--ui-bg-2) 100%);
+  color: var(--ui-fg);
+}
 
-    :focus-visible {
-      outline: 2px solid hsl(var(--primary));
-      outline-offset: 2px;
-      box-shadow: 0 0 0 2px hsl(var(--primary-glow) / 0.5);
-    }
+/* Cards (affects elements using bg-card utility) */
+.bg-card {
+  background-color: var(--ui-card) !important;
+  border: 1px solid var(--ui-border) !important;
+  box-shadow: 0 6px 22px rgba(2, 8, 23, 0.06);
+  border-radius: 14px;
+}
+
+/* Inputs & Textareas */
+input[type="text"], input[type="number"], input[type="color"], input[type="file"],
+input[type="search"], input[type="email"], input[type="password"], select, textarea {
+  border-radius: 12px;
+  border: 1px solid var(--ui-border);
+  background: #fff;
+  transition: box-shadow 160ms ease, transform 160ms ease, border-color 160ms ease;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: color-mix(in oklab, var(--ui-primary) 60%, #93c5fd 40%);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ui-primary) 18%, transparent);
+}
+
+/* Buttons (generic element baseline, component classes still apply on top) */
+button {
+  border-radius: 12px;
+  transition: transform 120ms ease, box-shadow 160ms ease, background-color 160ms ease, color 160ms ease;
+}
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(2, 8, 23, 0.08);
+}
+button:active {
+  transform: translateY(0);
+}
+button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ui-primary) 22%, transparent);
+}
+
+/* Links */
+ a {
+  transition: color 160ms ease, opacity 160ms ease;
+}
+ a:hover {
+  opacity: 0.9;
+}
+
+/* Tables: zebra striping for readability */
+ table tbody tr:nth-child(even) {
+  background-color: var(--ui-zebra);
+}
+ table th, table td {
+  border-top: 1px solid var(--ui-border);
+}
+ table th {
+  color: var(--ui-muted);
+  font-weight: 600;
+}
+
+/* Utility: soft shadow for prominent surfaces */
+.soft-shadow {
+  box-shadow: 0 10px 30px rgba(2, 8, 23, 0.08);
+}
+
+/* Utility: rounded-xl default bump */
+.rounded-xl, .rounded-lg, .rounded-md {
+  border-radius: 14px !important;
+}
+
+/* Reduce visual noise on heavy sections */
+section, .section {
+  background: transparent;
 }
