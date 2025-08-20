@@ -1,0 +1,20 @@
+{
+  "url": "http://localhost:4173/mbcanedo/",
+  "ok": false,
+  "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4173/mbcanedo/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/mbcanedo/\", waiting until \"load\"\u001b[22m\n",
+  "timings": {
+    "domContentLoaded": null,
+    "load": null
+  },
+  "console": [],
+  "requests_4xx_5xx": [
+    {
+      "url": "http://localhost:4173/mbcanedo/",
+      "status": null,
+      "method": "GET",
+      "failure": "net::ERR_CONNECTION_REFUSED"
+    }
+  ],
+  "missingAssets": [],
+  "generatedAt": "2025-08-16T17:36:13.903Z"
+}

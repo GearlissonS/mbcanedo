@@ -1,0 +1,13 @@
+{
+  "url": "http://localhost:4173/mbcanedo/",
+  "ok": true,
+  "error": null,
+  "timings": {
+    "domContentLoaded": null,
+    "load": null
+  },
+  "console": [],
+  "requests_4xx_5xx": [],
+  "missingAssets": [],
+  "generatedAt": "2025-08-16T17:38:01.932Z"
+}
