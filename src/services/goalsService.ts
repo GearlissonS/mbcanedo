@@ -1,25 +1,19 @@
 import { supabase } from '../lib/supabaseClient';
+import type { Meta } from '../types/core';
 
-export interface Goal {
-  id: string;
-  agent_id: string;
-  meta: number;
-  periodo: string;
-}
-
-export async function getGoals(): Promise<Goal[]> {
+export async function getGoals(): Promise<Meta[]> {
   const { data, error } = await supabase.from('goals').select('*');
   if (error) throw error;
   return data || [];
 }
 
-export async function addGoal(goal: Omit<Goal, 'id'>): Promise<Goal> {
+export async function addGoal(goal: Omit<Meta, 'id'>): Promise<Meta> {
   const { data, error } = await supabase.from('goals').insert([goal]).select('*').single();
   if (error) throw error;
   return data;
 }
 
-export async function updateGoal(id: string, goal: Partial<Goal>): Promise<Goal> {
+export async function updateGoal(id: string, goal: Partial<Meta>): Promise<Meta> {
   const { data, error } = await supabase.from('goals').update(goal).eq('id', id).select('*').single();
   if (error) throw error;
   return data;

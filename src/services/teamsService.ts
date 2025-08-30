@@ -1,23 +1,19 @@
 import { supabase } from '../lib/supabaseClient';
+import type { Equipe } from '../types/core';
 
-export interface Team {
-  id: string;
-  nome: string;
-}
-
-export async function getTeams(): Promise<Team[]> {
+export async function getTeams(): Promise<Equipe[]> {
   const { data, error } = await supabase.from('equipes').select('*');
   if (error) throw error;
   return data || [];
 }
 
-export async function addTeam(team: Omit<Team, 'id'>): Promise<Team> {
+export async function addTeam(team: Omit<Equipe, 'id'>): Promise<Equipe> {
   const { data, error } = await supabase.from('equipes').insert([team]).select('*').single();
   if (error) throw error;
   return data;
 }
 
-export async function updateTeam(id: string, team: Partial<Team>): Promise<Team> {
+export async function updateTeam(id: string, team: Partial<Equipe>): Promise<Equipe> {
   const { data, error } = await supabase.from('equipes').update(team).eq('id', id).select('*').single();
   if (error) throw error;
   return data;

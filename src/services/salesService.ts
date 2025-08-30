@@ -1,27 +1,22 @@
 import { supabase } from '../lib/supabaseClient';
+import { vendaSchema } from '../lib/validators';
+import type { Venda } from '../types/core';
 
-export interface Sale {
-  id: string;
-  agent_id: string;
-  value: number;
-  status: string;
-  origin: string;
-  created_at: string;
-}
-
-export async function getSales(): Promise<Sale[]> {
+export async function getSales(): Promise<Venda[]> {
   const { data, error } = await supabase.from('sales').select('*');
   if (error) throw error;
   return data || [];
 }
 
-export async function addSale(sale: Omit<Sale, 'id' | 'created_at'>): Promise<Sale> {
-  const { data, error } = await supabase.from('sales').insert([sale]).select('*').single();
+export async function addSale(sale: Omit<Venda, 'id' | 'created_at'>): Promise<Venda> {
+  const parse = vendaSchema.safeParse(sale);
+  if (!parse.success) throw new Error('Dados inválidos para venda');
+  const { data, error } = await supabase.from('sales').insert([parse.data]).select('*').single();
   if (error) throw error;
   return data;
 }
 
-export async function updateSale(id: string, sale: Partial<Sale>): Promise<Sale> {
+export async function updateSale(id: string, sale: Partial<Venda>): Promise<Venda> {
   const { data, error } = await supabase.from('sales').update(sale).eq('id', id).select('*').single();
   if (error) throw error;
   return data;

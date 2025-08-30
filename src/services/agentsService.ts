@@ -1,25 +1,19 @@
 import { supabase } from '../lib/supabaseClient';
+import type { Agente } from '../types/core';
 
-export interface Agent {
-  id: string;
-  nome: string;
-  apelido: string;
-  avatar: string;
-}
-
-export async function getAgents(): Promise<Agent[]> {
+export async function getAgents(): Promise<Agente[]> {
   const { data, error } = await supabase.from('agents').select('*');
   if (error) throw error;
   return data || [];
 }
 
-export async function addAgent(agent: Omit<Agent, 'id'>): Promise<Agent> {
+export async function addAgent(agent: Omit<Agente, 'id'>): Promise<Agente> {
   const { data, error } = await supabase.from('agents').insert([agent]).select('*').single();
   if (error) throw error;
   return data;
 }
 
-export async function updateAgent(id: string, agent: Partial<Agent>): Promise<Agent> {
+export async function updateAgent(id: string, agent: Partial<Agente>): Promise<Agente> {
   const { data, error } = await supabase.from('agents').update(agent).eq('id', id).select('*').single();
   if (error) throw error;
   return data;
