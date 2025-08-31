@@ -1,0 +1,1 @@
+import{j as r}from"./index-CrDTbQSZ.js";import i from"./Ranking-Dnye3A8E.js";import"./index-Cq6hf_Pr.js";import"./label-gh_AcRYG.js";import"./select-DXBU67iw.js";import"./index-Dqyv8W6f.js";import"./check-C511vp4-.js";function e(){return r.jsx("div",{className:"min-h-screen bg-background",children:r.jsx(i,{})})}export{e as default};
