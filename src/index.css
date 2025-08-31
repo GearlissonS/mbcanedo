@@ -1,4 +1,8 @@
-/* Global UI polish: softer palette, better contrast, modern surfaces, subtle motion */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global UI polish: softer palette, better contrast, modern surfaces */
 
 :root {
   --ui-bg: #f7f9fc; /* light blue/gray */
