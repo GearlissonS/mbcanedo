@@ -16,6 +16,14 @@ const menuItems = [
   { icon: FileText, label: "Relatórios", to: "/reports" },
 ];
 
+const shortcutIcons = [
+  { icon: Building2, label: "Imóveis", to: "/properties" },
+  { icon: HomeIcon, label: "Casas", to: "/houses" },
+  { icon: Handshake, label: "Equipe", to: "/team" },
+  { icon: TrendingUp, label: "Crescimento", to: "/growth" },
+  { icon: KeyRound, label: "Chaves", to: "/keys" },
+];
+
 const Index = () => {
   const { settings } = useSettings();
   const jsonLd = {
@@ -46,7 +54,7 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-white via-blue-50 to-blue-200 overflow-x-hidden">
+    <div className="relative min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#0f172a] to-[#1e3a8a] overflow-x-hidden">
       <Helmet>
         <title>{settings.title} — Gestão de Vendas Imobiliárias</title>
         <meta name="description" content={`${settings.title}: soluções modernas para gestão imobiliária.`} />
@@ -54,49 +62,63 @@ const Index = () => {
       </Helmet>
       <BackButton />
       <section className="w-full max-w-3xl px-4 flex flex-col items-center">
-        <motion.h1
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-4xl sm:text-5xl font-bold text-center mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-cyan-500 to-blue-400"
-        >
-          {settings.title} <span className="font-light">Gestão Imobiliária</span>
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.2 }}
-          className="text-lg sm:text-xl text-gray-700 dark:text-gray-200 mb-8 text-center"
-        >
-          Profissionalismo, confiança e modernidade para sua imobiliária. Organize vendas, equipe, ranking e KPIs em um dashboard inovador.
-        </motion.p>
-        <div ref={menuRef} tabIndex={0} className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8 outline-none" aria-label="Menu principal">
+        <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="w-full">
+          <h1 className="text-5xl font-extrabold text-white text-center mb-2 tracking-tight">
+            My Broker Senador Canedo
+          </h1>
+          <h2 className="text-2xl font-semibold text-blue-400 text-center mb-4">Gestão de Corretores</h2>
+          <p className="text-lg sm:text-xl text-white/90 mb-8 text-center">
+            Profissionalismo, confiança e modernidade para sua imobiliária. Organize vendas, equipe, ranking e KPIs em um dashboard inovador.
+          </p>
+        </motion.div>
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2 }} className="flex flex-row gap-4 mb-8">
+          <Button asChild size="lg" className="bg-blue-600 text-white shadow-lg hover:scale-105 transition-transform">
+            <Link to="/sales">Cadastrar Vendas</Link>
+          </Button>
+          <Button asChild size="lg" variant="outline" className="hover:bg-blue-50 hover:text-blue-700">
+            <Link to="/dashboard">Ver Dashboard</Link>
+          </Button>
+          <Button asChild size="lg" variant="secondary" className="hover:bg-blue-50 hover:text-blue-700">
+            <Link to="/ranking">Ver Ranking</Link>
+          </Button>
+        </motion.div>
+        <nav ref={menuRef} tabIndex={0} className="w-full flex flex-wrap justify-center gap-4 mb-8 outline-none" aria-label="Menu principal">
           <AnimatePresence>
-            {menuItems.map((item, i) => (
+            {menuItems.slice(0,4).map((item, i) => (
               <motion.div
                 key={item.label}
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 24 }}
                 transition={{ duration: 0.5, delay: i * 0.08 }}
-                whileHover={{ scale: 1.04, boxShadow: "0 8px 32px -8px #3b82f6" }}
-                className="flex flex-col items-center justify-center rounded-2xl bg-white/80 shadow-lg hover:shadow-xl transition-all border border-blue-100 p-6 cursor-pointer focus:ring-2 focus:ring-blue-400"
+                whileHover={{ scale: 1.08 }}
+                className="px-4 py-2 rounded-xl bg-white/10 hover:bg-blue-900/30 transition-all border border-blue-100 cursor-pointer focus:ring-2 focus:ring-blue-400"
               >
-                <Link to={item.to} className="flex flex-col items-center gap-2 outline-none" tabIndex={0} aria-label={item.label}>
-                  <item.icon className="h-8 w-8 text-blue-500 mb-2" aria-hidden="true" />
-                  <span className="text-base font-semibold text-gray-900 dark:text-white">{item.label}</span>
+                <Link to={item.to} className="flex items-center gap-2 outline-none" tabIndex={0} aria-label={item.label}>
+                  <item.icon className="h-6 w-6 text-blue-400" aria-hidden="true" />
+                  <span className="text-base font-semibold text-white/90">{item.label}</span>
                 </Link>
               </motion.div>
             ))}
+            <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 24 }} transition={{ duration: 0.5, delay: 0.32 }} className="relative">
+              <div className="group">
+                <button className="px-4 py-2 rounded-xl bg-white/10 hover:bg-blue-900/30 transition-all border border-blue-100 text-white/90 font-semibold cursor-pointer focus:ring-2 focus:ring-blue-400">
+                  Mais
+                </button>
+                <div className="absolute left-0 mt-2 w-40 rounded-xl bg-white/90 shadow-lg border border-blue-100 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                  {menuItems.slice(4).map((item) => (
+                    <Link key={item.label} to={item.to} className="flex items-center gap-2 px-4 py-2 hover:bg-blue-50 text-blue-700 rounded-xl">
+                      <item.icon className="h-5 w-5 text-blue-400" aria-hidden="true" />
+                      <span>{item.label}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
           </AnimatePresence>
-        </div>
-        {/* Imagem ou logo central */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="mx-auto w-48 h-48 rounded-full border bg-gradient-to-br from-blue-100 via-white to-blue-200 shadow-xl flex items-center justify-center overflow-hidden"
-        >
+        </nav>
+        <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, delay: 0.1 }} className="mx-auto w-[22rem] h-[16rem] rounded-2xl border border-blue-400/40 bg-white/30 backdrop-blur-md shadow-[0_0_16px_2px_#38bdf8] flex items-center justify-center overflow-hidden mb-8">
+          {/* Aqui pode ir o gráfico animado ou imagem central */}
           {settings.logoDataUrl ? (
             <img src={settings.logoDataUrl} alt={`Logo ${settings.title}`} className="max-h-32 max-w-32 object-contain" loading="lazy" />
           ) : (
@@ -111,6 +133,14 @@ const Index = () => {
             </svg>
           )}
         </motion.div>
+        <div className="mt-4 grid grid-cols-2 sm:grid-cols-5 gap-4 text-white/80">
+          {shortcutIcons.map((it, i) => (
+            <Link to={it.to} key={it.label} className="flex items-center justify-center gap-2 rounded-2xl bg-white/10 hover:bg-blue-400/30 transition-all border border-white/10 shadow-sm py-3 cursor-pointer">
+              <it.icon className="h-6 w-6 text-blue-300 group-hover:text-blue-600 transition-colors" aria-hidden="true" />
+              <span className="text-sm font-medium text-white/90">{it.label}</span>
+            </Link>
+          ))}
+        </div>
       </section>
     </div>
   );

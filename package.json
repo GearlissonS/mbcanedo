@@ -4,15 +4,21 @@
   "description": "[![Deploy](https://github.com/GearlissonS/mbcanedo/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/GearlissonS/mbcanedo/actions/workflows/deploy.yml)",
   "main": "eslint.config.js",
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.12",
     "@types/react": "^19.1.11",
     "@types/react-dom": "^19.1.7",
     "@vitejs/plugin-react-swc": "^4.0.1",
+    "autoprefixer": "^10.4.21",
     "lovable-tagger": "^1.1.9",
+    "tailwindcss": "^4.1.12",
     "vite": "^7.1.3"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "vite"
+    "dev": "vite",
+    "build": "vite build",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "repository": {
     "type": "git",
@@ -25,7 +31,7 @@
   "bugs": {
     "url": "https://github.com/GearlissonS/mbcanedo/issues"
   },
-  "homepage": "https://github.com/GearlissonS/mbcanedo#readme",
+  "homepage": "https://GearlissonS.github.io/mbcanedo",
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
     "@radix-ui/react-alert-dialog": "^1.1.15",
