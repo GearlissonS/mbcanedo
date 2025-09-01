@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { getSales, Sale } from '../services/salesService';
-import { getAgents, Agent } from '../services/agentsService';
+import { getSales } from '../services/salesService';
+import { getAgents } from '../services/agentsService';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import type { Venda } from '../types/core';
+import type { Agente } from '../types/core';
 
 interface MonthlyData {
   month: string;
@@ -9,8 +11,8 @@ interface MonthlyData {
 }
 
 export default function SalesDashboard() {
-  const [sales, setSales] = useState<Sale[]>([]);
-  const [agents, setAgents] = useState<Agent[]>([]);
+  const [sales, setSales] = useState<Venda[]>([]);
+  const [agents, setAgents] = useState<Agente[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,13 +30,13 @@ export default function SalesDashboard() {
   // Total de vendas
   const totalVendas = sales.length;
   // VGV
-  const vgv = sales.reduce((sum, s) => sum + s.value, 0);
+  const vgv = sales.reduce((sum, s) => sum + s.valor, 0);
   // Ranking top 3 corretores
   const ranking = agents
     .map(agent => ({
       ...agent,
-      vendas: sales.filter(s => s.agent_id === agent.id).length,
-      vgv: sales.filter(s => s.agent_id === agent.id).reduce((sum, s) => sum + s.value, 0)
+      vendas: sales.filter(s => s.agente_id === agent.id).length,
+      vgv: sales.filter(s => s.agente_id === agent.id).reduce((sum, s) => sum + s.valor, 0)
     }))
     .sort((a, b) => b.vgv - a.vgv)
     .slice(0, 3);
@@ -44,8 +46,8 @@ export default function SalesDashboard() {
   sales.forEach(sale => {
     const month = new Date(sale.created_at).toLocaleString('pt-BR', { month: 'short', year: '2-digit' });
     const found = monthlyData.find(m => m.month === month);
-    if (found) found.total += sale.value;
-    else monthlyData.push({ month, total: sale.value });
+    if (found) found.total += sale.valor;
+    else monthlyData.push({ month, total: sale.valor });
   });
 
   return (

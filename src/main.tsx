@@ -1,5 +1,5 @@
 import { createRoot } from 'react-dom/client'
-import App from './App.tsx'
+import App from './App'
 import './index.css'
 // instala logger de fetch (erros >=400 e falhas de rede)
 import './lib/networkDebug'

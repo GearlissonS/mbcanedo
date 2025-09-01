@@ -5,4 +5,3 @@ export { toast };
 
 // Also re-export the type definitions from the component module
 export type { ToastActionElement, ToastProps } from "./toast.tsx";
-sim

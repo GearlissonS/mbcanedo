@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { getTeams, addTeam, deleteTeam, Team } from '../services/teamsService';
+import { getTeams, addTeam, deleteTeam } from '../services/teamsService';
+import type { Equipe } from '../types/core';
 
 export default function TeamsList() {
-  const [teams, setTeams] = useState<Team[]>([]);
+  const [teams, setTeams] = useState<Equipe[]>([]);
   const [newTeam, setNewTeam] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +20,7 @@ export default function TeamsList() {
     if (!newTeam.trim()) return;
     setLoading(true);
     try {
-      const team = await addTeam({ nome: newTeam });
+      const team = await addTeam({ nome: newTeam, created_at: new Date().toISOString() });
       setTeams([...teams, team]);
       setNewTeam('');
     } catch (e: any) {
