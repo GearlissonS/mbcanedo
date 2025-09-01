@@ -7,14 +7,166 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "13.0.4"
   }
   public: {
     Tables: {
-      [_ in never]: never
+      agents: {
+        Row: {
+          created_at: string
+          equipe: string | null
+          id: string
+          meta: number
+          nome: string
+          realizado: number
+        }
+        Insert: {
+          created_at?: string
+          equipe?: string | null
+          id?: string
+          meta?: number
+          nome: string
+          realizado?: number
+        }
+        Update: {
+          created_at?: string
+          equipe?: string | null
+          id?: string
+          meta?: number
+          nome?: string
+          realizado?: number
+        }
+        Relationships: []
+      }
+      brokers: {
+        Row: {
+          avatardataurl: string | null
+          created_at: string
+          creci: string
+          id: string
+          name: string
+          nickname: string
+          team: string | null
+          tempomedio: number | null
+          vgv: number | null
+        }
+        Insert: {
+          avatardataurl?: string | null
+          created_at?: string
+          creci: string
+          id?: string
+          name: string
+          nickname: string
+          team?: string | null
+          tempomedio?: number | null
+          vgv?: number | null
+        }
+        Update: {
+          avatardataurl?: string | null
+          created_at?: string
+          creci?: string
+          id?: string
+          name?: string
+          nickname?: string
+          team?: string | null
+          tempomedio?: number | null
+          vgv?: number | null
+        }
+        Relationships: []
+      }
+      corretores: {
+        Row: {
+          created_at: string
+          equipe: string | null
+          id: string
+          meta_individual: number
+          nome: string
+          realizado: number
+        }
+        Insert: {
+          created_at?: string
+          equipe?: string | null
+          id?: string
+          meta_individual?: number
+          nome: string
+          realizado?: number
+        }
+        Update: {
+          created_at?: string
+          equipe?: string | null
+          id?: string
+          meta_individual?: number
+          nome?: string
+          realizado?: number
+        }
+        Relationships: []
+      }
+      equipes: {
+        Row: {
+          created_at: string
+          id: string
+          meta_equipe: number | null
+          nome: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          meta_equipe?: number | null
+          nome: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          meta_equipe?: number | null
+          nome?: string
+        }
+        Relationships: []
+      }
+      mbcanedo: {
+        Row: {
+          created_at: string
+          id: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+        }
+        Relationships: []
+      }
+      vendas: {
+        Row: {
+          brokerid: string | null
+          created_at: string
+          id: string
+          listedat: string | null
+          soldat: string
+          value: number
+        }
+        Insert: {
+          brokerid?: string | null
+          created_at?: string
+          id?: string
+          listedat?: string | null
+          soldat: string
+          value: number
+        }
+        Update: {
+          brokerid?: string | null
+          created_at?: string
+          id?: string
+          listedat?: string | null
+          soldat?: string
+          value?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
