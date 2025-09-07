@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import EquipeManager from "./EquipeManager";
-import { CadastroEquipes } from "@/components/settings/CadastroEquipes";
+
 import { useSettings, MenuKey } from "@/context/SettingsContext";
 import { useData } from "@/context/data-core";
 import type { Sale } from "@/context/types";
@@ -332,7 +332,8 @@ export default function Settings() {
           <div className="p-4 border rounded-lg bg-card">
             <h2 className="font-semibold mb-3">Cadastro de Equipes</h2>
             {/* Versão compacta (padrão) */}
-            <CadastroEquipes />
+            {/* CadastroEquipes component was removed */}
+            <p className="text-muted-foreground">Gestão de equipes em desenvolvimento</p>
 
             {/* Toggle para gestão completa */}
             <div className="flex justify-end mt-4">

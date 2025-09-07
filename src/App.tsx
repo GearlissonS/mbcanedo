@@ -20,7 +20,7 @@ const Settings = lazy(() => import("./pages/Settings").catch((e) => { console.er
 const RankingFull = lazy(() => import("./pages/RankingFull").catch((e) => { console.error('[lazy] Failed to load pages/RankingFull', e); throw e; }));
 import { SettingsProvider } from "@/context/SettingsContext";
 import { DataProvider } from "@/context/DataContext";
-import { ThemeProvider } from "@/context/ThemeContext";
+
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
 const queryClient = new QueryClient();
@@ -28,7 +28,7 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <HelmetProvider>
-      <ThemeProvider userId="demo-user">
+      
         <SettingsProvider>
           <DataProvider>
             <TooltipProvider>
@@ -44,7 +44,7 @@ const App = () => (
             </TooltipProvider>
           </DataProvider>
         </SettingsProvider>
-      </ThemeProvider>
+      
     </HelmetProvider>
   </QueryClientProvider>
 );
@@ -58,7 +58,7 @@ function InnerRoutes() {
   // Página de corretores removida
   const Metas = React.lazy(() => import("./pages/Metas").catch((e) => { console.error('[lazy] Failed to load pages/Metas', e); throw e; }));
   const EquipeManager = React.lazy(() => import("./pages/EquipeManager").catch((e) => { console.error('[lazy] Failed to load pages/EquipeManager', e); throw e; }));
-  const MetasCorretor = React.lazy(() => import("./pages/MetasCorretor").catch((e) => { console.error('[lazy] Failed to load pages/MetasCorretor', e); throw e; }));
+  
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -80,7 +80,7 @@ function InnerRoutes() {
             <Route path="/settings" element={<Settings />} />
             <Route path="/kanban-vendas" element={<KanbanVendas />} />
             <Route path="/cadastro-metas" element={<Metas />} />
-            <Route path="/metas-corretor" element={<MetasCorretor />} />
+            
             {/* Página de corretores removida */}
           </Route>
           <Route path="*" element={<NotFound />} />

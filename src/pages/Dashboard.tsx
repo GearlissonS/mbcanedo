@@ -4,7 +4,7 @@ import { Palette, Sun, Moon, CalendarDays, User } from "lucide-react";
 import { useData } from "@/context/data-core";
 import { useSettings } from "@/context/SettingsContext";
 import { Helmet } from "react-helmet-async";
-import { useTheme } from "@/context/ThemeContext";
+
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -68,22 +68,7 @@ const formatTooltip = (value: unknown, name: string) => {
 };
 export default function Dashboard() {
   // ...existing code...
-  // Theme/paleta
-  const { theme, palette, setTheme, setPalette, savePreferences } = useTheme();
-  const [saving, setSaving] = useState(false);
-  const quickPalettes = [
-    { primary: "#2563eb", secondary: "#0ea5e9" },
-    { primary: "#22c55e", secondary: "#0ea5e9" },
-    { primary: "#a21caf", secondary: "#6366f1" },
-  ];
-  const handlePaletteChange = (patch) => setPalette({ ...palette, ...patch });
-  const handleThemeChange = (t) => setTheme(t);
-  const handleQuickPalette = (p) => setPalette(p);
-  const handleSave = async () => {
-    setSaving(true);
-    await savePreferences();
-    setSaving(false);
-  };
+  // Removed theme-related code as ThemeContext was deleted
   const { sales } = useData();
   const { settings } = useSettings();
   const [mode, setMode] = useState<"mensal" | "anual" | "custom">("mensal");
@@ -193,28 +178,6 @@ export default function Dashboard() {
         <meta name="description" content="Gráficos (VGV, VGC, Ranking, Tipos, Origem) com filtros por período e corretor." />
       </Helmet>
 
-      {/* Card de Personalização do Dashboard */}
-  <motion.div layout className="mb-2 px-2 py-1 rounded-2xl shadow bg-white/50 dark:bg-slate-900/50 backdrop-blur border border-white/10 flex flex-wrap gap-2 items-center justify-center max-w-md mx-auto" style={{opacity:0.95}}>
-        <Palette size={18} className="mr-2 opacity-60" />
-        <button
-          className={`px-2 py-1 rounded font-semibold flex items-center gap-1 transition text-xs ${theme === 'light' ? 'bg-primary text-white' : 'bg-slate-700 text-white'}`}
-          onClick={() => handleThemeChange('light')}
-        ><Sun size={14}/> Claro</button>
-        <button
-          className={`px-2 py-1 rounded font-semibold flex items-center gap-1 transition text-xs ${theme === 'dark' ? 'bg-primary text-white' : 'bg-slate-700 text-white'}`}
-          onClick={() => handleThemeChange('dark')}
-        ><Moon size={14}/> Escuro</button>
-        <input type="color" value={palette.primary} onChange={e => handlePaletteChange({ primary: e.target.value })} className="w-7 h-7 rounded border" title="Cor Primária" />
-        <input type="color" value={palette.secondary} onChange={e => handlePaletteChange({ secondary: e.target.value })} className="w-7 h-7 rounded border" title="Cor Secundária" />
-        {quickPalettes.map((p, i) => (
-          <button key={i} className="w-6 h-6 rounded-full border-2 border-white shadow" style={{background: `linear-gradient(135deg, ${p.primary}, ${p.secondary})`}} onClick={() => handleQuickPalette(p)} title="Paleta rápida" />
-        ))}
-        <button
-          className="px-2 py-1 rounded bg-green-600 text-white font-semibold flex items-center gap-1 text-xs"
-          onClick={handleSave}
-          disabled={saving}
-        >Salvar</button>
-      </motion.div>
 
       {/* Barra de filtros com ícones */}
   <motion.div layout className="flex flex-wrap items-center gap-4 mb-6 px-3 py-3 rounded-2xl bg-white/50 dark:bg-slate-900/50 backdrop-blur border border-white/10 shadow max-w-3xl mx-auto">
@@ -346,8 +309,8 @@ export default function Dashboard() {
                 <Bar dataKey="VGV" fill={`url(#vgvGradient)`} radius={[10,10,0,0]} isAnimationActive={true} animationDuration={1200} />
                 <defs>
                   <linearGradient id="vgvGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={palette.primary} />
-                    <stop offset="100%" stopColor={palette.secondary} />
+                    <stop offset="0%" stopColor="#3b82f6" />
+                    <stop offset="100%" stopColor="#1d4ed8" />
                   </linearGradient>
                 </defs>
               </BarChart>
@@ -366,8 +329,8 @@ export default function Dashboard() {
                 <Bar dataKey="VGC" fill={`url(#vgcGradient)`} radius={[10,10,0,0]} isAnimationActive={true} animationDuration={1200} />
                 <defs>
                   <linearGradient id="vgcGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={palette.secondary} />
-                    <stop offset="100%" stopColor={palette.primary} />
+                    <stop offset="0%" stopColor="#10b981" />
+                    <stop offset="100%" stopColor="#059669" />
                   </linearGradient>
                 </defs>
               </BarChart>
@@ -406,7 +369,7 @@ export default function Dashboard() {
                   <Tooltip content={<CustomTooltip currency />} />
                   <Pie data={tipoData} dataKey="value" nameKey="name" outerRadius={80} label isAnimationActive={true} animationDuration={1200} cornerRadius={10}>
                     {tipoData.map((_, i) => (
-                      <Cell key={i} fill={i % 2 === 0 ? palette.primary : palette.secondary} />
+                      <Cell key={i} fill={i % 2 === 0 ? "#3b82f6" : "#10b981"} />
                     ))}
                   </Pie>
                 </PieChart>
@@ -421,7 +384,7 @@ export default function Dashboard() {
                   <Tooltip content={<CustomTooltip currency />} />
                   <Pie data={origemData} dataKey="value" nameKey="name" outerRadius={80} label isAnimationActive={true} animationDuration={1200} cornerRadius={10}>
                     {origemData.map((_, i) => (
-                      <Cell key={i} fill={i % 2 === 0 ? palette.secondary : palette.primary} />
+                      <Cell key={i} fill={i % 2 === 0 ? "#10b981" : "#3b82f6"} />
                     ))}
                   </Pie>
                 </PieChart>
@@ -435,7 +398,7 @@ export default function Dashboard() {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie data={gaugeData} dataKey="value" nameKey="name" innerRadius={60} outerRadius={90} isAnimationActive={true} animationDuration={1200} cornerRadius={10}>
-                  <Cell fill={palette.secondary} />
+                  <Cell fill="#10b981" />
                   <Cell fill="#e5e7eb" />
                 </Pie>
               </PieChart>
