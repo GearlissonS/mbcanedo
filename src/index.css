@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global UI polish: softer palette, better contrast, modern surfaces */
+
+:root {
+  --ui-bg: #f7f9fc; /* light blue/gray */
+  --ui-bg-2: #eef2f7;
+  --ui-fg: #0f172a; /* slate-900 */
+  --ui-muted: #64748b; /* slate-500 */
+  --ui-border: #e2e8f0; /* slate-200 */
+  --ui-card: #ffffff;
+  --ui-primary: #2563eb; /* blue-600 */
+  --ui-primary-foreground: #ffffff;
+  --ui-success: #16a34a; /* green-600 */
+  --ui-zebra: #f8fafc; /* very light */
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background: linear-gradient(180deg, var(--ui-bg) 0%, var(--ui-bg-2) 100%);
+  color: var(--ui-fg);
+}
+
+/* Cards (affects elements using bg-card utility) */
+.bg-card {
+  background-color: var(--ui-card) !important;
+  border: 1px solid var(--ui-border) !important;
+  box-shadow: 0 6px 22px rgba(2, 8, 23, 0.06);
+  border-radius: 14px;
+}
+
+/* Inputs & Textareas */
+input[type="text"], input[type="number"], input[type="color"], input[type="file"],
+input[type="search"], input[type="email"], input[type="password"], select, textarea {
+  border-radius: 12px;
+  border: 1px solid var(--ui-border);
+  background: #fff;
+  transition: box-shadow 160ms ease, transform 160ms ease, border-color 160ms ease;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: color-mix(in oklab, var(--ui-primary) 60%, #93c5fd 40%);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ui-primary) 18%, transparent);
+}
+
+/* Buttons (generic element baseline, component classes still apply on top) */
+button {
+  border-radius: 12px;
+  transition: transform 120ms ease, box-shadow 160ms ease, background-color 160ms ease, color 160ms ease;
+}
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(2, 8, 23, 0.08);
+}
+button:active {
+  transform: translateY(0);
+}
+button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ui-primary) 22%, transparent);
+}
+
+/* Links */
+ a {
+  transition: color 160ms ease, opacity 160ms ease;
+}
+ a:hover {
+  opacity: 0.9;
+}
+
+/* Tables: zebra striping for readability */
+ table tbody tr:nth-child(even) {
+  background-color: var(--ui-zebra);
+}
+ table th, table td {
+  border-top: 1px solid var(--ui-border);
+}
+ table th {
+  color: var(--ui-muted);
+  font-weight: 600;
+}
+
+/* Utility: soft shadow for prominent surfaces */
+.soft-shadow {
+  box-shadow: 0 10px 30px rgba(2, 8, 23, 0.08);
+}
+
+/* Utility: rounded-xl default bump */
+.rounded-xl, .rounded-lg, .rounded-md {
+  border-radius: 14px !important;
+}
+
+/* Reduce visual noise on heavy sections */
+section, .section {
+  background: transparent;
+}

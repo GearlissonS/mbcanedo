@@ -1,0 +1,1 @@
+// Arquivo substituído por vite.config.mjs para compatibilidade ESM/Lovable
