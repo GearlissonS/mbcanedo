@@ -18,8 +18,19 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  build: {
-    outDir: "dist",
-    emptyOutDir: true,
+  esbuild: {
+    logOverride: { 'this-is-undefined-in-esm': 'silent' }
   },
+  build: {
+    rollupOptions: {
+      onwarn(warning, warn) {
+        // Suppress specific warnings
+        if (warning.code === 'UNUSED_EXTERNAL_IMPORT') return;
+        warn(warning);
+      }
+    }
+  },
+  optimizeDeps: {
+    exclude: ['@typescript-eslint/eslint-plugin']
+  }
 }));
