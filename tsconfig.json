@@ -25,6 +25,10 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
+<<<<<<< HEAD
   "include": ["src"],
+=======
+  // ...existing code...
+>>>>>>> ff023fd6 (fix: integração Lovable, Vite, Tailwind e PostCSS)
   "exclude": ["node_modules", "dist"]
 }
